@@ -1,0 +1,34 @@
+SQL Changes
+	ALTER TABLE quote ADD COLUMN rebateid
+
+	CREATE TABLE `rebates` (
+	  `id` int(11) NOT NULL,
+	  `verification` varchar(255) NOT NULL,
+	  `rebatebusid` int(11) NOT NULL,
+	  `product` int(11) NOT NULL,
+	  `maxqty` int(11) NOT NULL,
+	  `total` int(11) NOT NULL DEFAULT '0'
+	) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+Module Changes
+
+	module-quote/Api/Data/RebateInterface.php
+		create Rebate item interface
+		add Rebate Factory reference
+	module-quote/Model/Rebate.php
+		create Rebate item
+		methods: getters and setters for code,quote,quote_item,amount,maxqty
+	module-quote/Api/RebateManagementInterface.php
+		create Rebate Management interface in Quote module
+	module-quote/Model/RebateManagement.php
+		create Rebate Management interface in Quote module
+	module-quote/Cart/Totals.php
+		add rebate code getters to cart model	
+	module-quote/Model/CartTotalRepository.php
+		add RebateManagementInterface to CartTotalRepository model
+	module-quote/Api/Data/TotalsInterface.php
+		create Rebate Management method definitions in abstract Totals interface
+		methods: addRebate, getRebates, deleteRebate
+	module-quote/Model/Quote.php
+		add rebate model reference 
+	module-quote/etc/webapi.xml		
+		add API section for managing cart rebates

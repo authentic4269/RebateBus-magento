@@ -90,6 +90,20 @@ class Mage_Checkout_Model_Cart extends Varien_Object implements Mage_Checkout_Mo
         return $this->getQuote()->getItemsCollection();
     }
 
+   /*
+   *  List of rebates
+   *  @return Mage_Model_Entitty_Collection_Abstract|array
+   */
+    public function getRebates()
+    {
+        if (!$this->getQuote()->getId()) {
+            return array();
+        }
+        return $this->getQuote()->getRebatesCollection();
+    }
+
+
+
     /**
      * Retrieve array of cart product ids
      *

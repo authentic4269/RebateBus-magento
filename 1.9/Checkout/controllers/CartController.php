@@ -568,6 +568,51 @@ class Mage_Checkout_CartController extends Mage_Core_Controller_Front_Action
     }
 
     /**
+     * Initialize rebate 
+     */
+    public function rebatesPostAction()
+    {
+        /**
+         * No reason continue with empty shopping cart
+         */
+        if (!$this->_getCart()->getQuote()->getItemsCount()) {
+            $this->_goBack();
+            return;
+        }
+
+        $rebateCode = (string) $this->getRequest()->getParam('verification');
+        if ($this->getRequest()->getParam('remove') == 1) {
+		//TODO: delete rebate
+        }
+
+        try {
+            $this->_getQuote()->getShippingAddress()->setCollectShippingRates(true);
+            $this->_getQuote()->setCouponCode($isCodeLengthValid ? $couponCode : '')
+                ->collectTotals()
+                ->save();
+            $codeLength = strlen($rebateCode);
+
+            if ($codeLength) {
+	    	$this->_getSession()->addSuccess(
+			//$this->__('Coupon code "%s" was applied.', Mage::helper('core')->escapeHtml($couponCode))
+			$this->__('Rebate was applied.')
+	    	);
+		// TODO: create rebate models, associate with this cart, add rebate amount to success message
+	        //$this->_getSession()->setCartCouponCode($couponCode);
+	    }
+        } catch (Mage_Core_Exception $e) {
+            $this->_getSession()->addError($e->getMessage());
+        } catch (Exception $e) {
+            $this->_getSession()->addError($this->__('Cannot apply the rebate.'));
+            Mage::logException($e);
+        }
+
+        $this->_goBack();
+    }
+
+
+
+    /**
      * Initialize coupon
      */
     public function couponPostAction()

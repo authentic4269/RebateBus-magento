@@ -341,6 +341,42 @@
                     </payment_method_is_not_set>
                 </faults>
             </cart_payment>
+            <cart_rebates translate="title" module="checkout">
+                <model>checkout/cart_rebates_api</model>
+                <title>Shopping cart ability to set rebates</title>
+                <acl>cart/rebates</acl>
+                <methods>
+                    <add translate="title" module="checkout">
+                        <title>Add rebates for shopping cart</title>
+                        <method>add</method>
+                        <acl>cart/rebates/add</acl>
+                    </add>
+                    <remove translate="title" module="checkout">
+                        <title>Remove rebate from shopping cart</title>
+                        <method>remove</method>
+                        <acl>cart/rebates/remove</acl>
+                    </remove>
+                </methods>
+                <faults module="checkout">
+                    <store_not_exists>
+                        <code>1001</code>
+                        <message>Can not make operation because store is not exists</message>
+                    </store_not_exists>
+                    <quote_not_exists>
+                        <code>1002</code>
+                        <message>Can not make operation because quote is not exists</message>
+                    </quote_not_exists>
+                    <quote_is_empty>
+                        <code>1081</code>
+                        <message>Rebate could not be applied because quote is empty.</message>
+                    </quote_is_empty>
+                    <rebate_is_not_approved>
+                        <code>1083</code>
+                        <message>Rebate could not be approved</message>
+                    </rebate_is_not_approved>
+                </faults>
+            </cart_rebates>
+ 
             <cart_coupon translate="title" module="checkout">
                 <model>checkout/cart_coupon_api</model>
                 <title>Shopping cart ability to set coupon code</title>
@@ -505,6 +541,7 @@
                 <cart_shipping>shoppingCartShipping</cart_shipping>
                 <cart_payment>shoppingCartPayment</cart_payment>
                 <cart_coupon>shoppingCartCoupon</cart_coupon>
+		<cart_rebates>shoppingCartRebates</cart_rebates>
             </resources_function_prefix>
         </v2>
     </api>

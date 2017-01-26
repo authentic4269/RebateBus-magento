@@ -30,7 +30,6 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 		$amount = (float) $this->getRequest()->getParam('amount');
 		$program = (string) $this->getRequest()->getParam('program');
 		// No reason continue with empty shopping cart
-		Mage::log('iterating through products... ', null, 'rebatebus.log');
 		if (!$this->_getCart()->getQuote()->getItemsCount()) {
 	            $this->_goBack();
 		    return;

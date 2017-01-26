@@ -564,7 +564,7 @@ class Mage_Checkout_OnepageController extends Mage_Checkout_Controller_Action
                     return;
                 }
             }
-	// BEGIN Rebate Confirm Section
+	/*
 		$apikey = "BRZpFWWyUGFPlSS9";
 	        $uid = 1;
 	        $url = 'https://www.rebatebus.com/api/applymidstream';
@@ -594,9 +594,9 @@ class Mage_Checkout_OnepageController extends Mage_Checkout_Controller_Action
 			$context  = stream_context_create($options);
 			$response = file_get_contents($url, false, $context);
 			$jsondata = json_decode($response);
-			if ($jsondata->error) {
+			if ($jsondata->error) { }
 
-			//if ($response === FALSE) { /* Handle error */ 
+			//if ($response === FALSE) {
 
 			    $result['success'] = false;
 			    $result['error'] = true;
@@ -609,7 +609,7 @@ class Mage_Checkout_OnepageController extends Mage_Checkout_Controller_Action
 
 
 	
-	// END Rebate Confirm Section
+	*/
             $data = $this->getRequest()->getPost('payment', array());
             if ($data) {
                 $data['checks'] = Mage_Payment_Model_Method_Abstract::CHECK_USE_CHECKOUT

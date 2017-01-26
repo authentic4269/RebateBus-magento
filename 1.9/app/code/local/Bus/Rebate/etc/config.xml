@@ -36,5 +36,16 @@
 			</entities>
 		</rebate_resource>
 	</models>
+	     <sales>
+		 <quote>
+		     <totals>
+			 <rebates>
+			     <class>rebate/quote_total_rebates</class>
+			     <after>subtotal</after>
+			     <before>tax</before>
+			 </rebates>
+		     </totals>
+		 </quote>
+	     </sales>
     </global>
 </config>

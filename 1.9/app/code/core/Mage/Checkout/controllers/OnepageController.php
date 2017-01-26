@@ -564,29 +564,52 @@ class Mage_Checkout_OnepageController extends Mage_Checkout_Controller_Action
                     return;
                 }
             }
-            foreach ($this->_getCart()->getQuote()->getAllItems() as $item) {
-		 $apikey = "";
-		 $rebate= Mage::getModel('sales/quote_item_rebate')->load($item->getId(), 'item_id');
-		 if ($rebate) {
-			
-			$url = 'http://dev.rebatebus.com/api/verifymidstream';
-			$data = array('key1' => 'value1', 'key2' => 'value2');
+	// BEGIN Rebate Confirm Section
+		$apikey = "BRZpFWWyUGFPlSS9";
+	        $uid = 1;
+	        $url = 'https://www.rebatebus.com/api/applymidstream';
 
-			// use key 'http' even if you send the request to https://...
+                $rebateitems = array();
+		$shipdata = Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getData();	
+		$billdata = Mage::getSingleton('checkout/session')->getQuote()->getBillingAddress()->getData();	
+
+
+                foreach (Mage::getSingleton('checkout/session')->getQuote()->getAllItems() as $item) {
+			$rebate= Mage::getModel('sales/quote_item_rebate')->load($item->getId(), 'item_id');
+			if ($rebate->getId()) {
+				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()));
+			}
+                }
+		if (count($rebateitems)) {
+			Mage::log("this data " . print_r($rebateitems, true), null, "rebatebus.log");
+			$postdata = array('zip' => $shipdata['postcode'],'billzip' => $billdata['postcode'], 'address' => $shipdata['street'] . "," . $shipdata['city'] . "," . $shipdata['region'],'billaddress' => $billdata['street'] . "," . $billdata['city'] . ',' . $billdata['region'], 'contactname' => $billdata['firstname'] . $billdata['lastname'], 'contactphone' => $billdata['telephone'], 'contactemail' => $billdata['email'], 'uid' => 43, 'apikey' => $apikey, 'rebates' => $rebateitems);
 			$options = array(
 			    'http' => array(
 				'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
 				'method'  => 'POST',
-				'content' => http_build_query($data)
+				'ignore_errors' => true,
+				'content' => http_build_query($postdata)
 			    )
 			);
 			$context  = stream_context_create($options);
-			$result = file_get_contents($url, false, $context);
-			if ($result === FALSE) { /* Handle error */ }
+			$response = file_get_contents($url, false, $context);
+			$jsondata = json_decode($response);
+			if ($jsondata->error) {
 
-			var_dump($result);
-		 }	
-	    }
+			//if ($response === FALSE) { /* Handle error */ 
+
+			    $result['success'] = false;
+			    $result['error'] = true;
+			    $result['error_messages'] = $this->__('Error processing your utility incentive: ' . $jsondata->error);
+			    $this->_prepareDataJSON($result);
+			    return;
+			}
+		}
+
+
+
+	
+	// END Rebate Confirm Section
             $data = $this->getRequest()->getPost('payment', array());
             if ($data) {
                 $data['checks'] = Mage_Payment_Model_Method_Abstract::CHECK_USE_CHECKOUT

@@ -255,9 +255,6 @@
                 <discount_amount>
                     <to_order>*</to_order>
                 </discount_amount>
-		<rebate_amount>
-		    <to_order>*</to_order>
-		</rebate_amount>
                 <shipping_amount>
                     <to_order>*</to_order>
                 </shipping_amount>
@@ -953,9 +950,6 @@
                     <quote_item>
                         <table>sales_flat_quote_item</table>
                     </quote_item>
-		    <quote_item_rebate>
-                        <table>sales_flat_quote_item_rebate</table>
-		    </quote_item_rebate>
                     <quote_address>
                         <table>sales_flat_quote_address</table>
                     </quote_address>
@@ -1222,11 +1216,6 @@
                         <after>nominal</after>
                         <before>grand_total</before>
                     </subtotal>
-		    <rebates>
-			<class>sales/quote_address_total_rebates</class>
-			<after>subtotal</after>
-			<before>freeshipping,total_shipping</before>
-		    </rebates>
                     <shipping>
                         <class>sales/quote_address_total_shipping</class>
                         <after>subtotal,freeshipping,tax_subtotal</after>
@@ -1396,11 +1385,6 @@
                         <class>sales/order_invoice_total_tax</class>
                         <after>subtotal</after>
                     </tax>
-		    <rebates>
-			<class>sales/order_invoice_total_rebate</class>
-			<after>subtotal,discount,tax</after>
-			<before>grand_total</before>
-		    </rebates>
                     <grand_total>
                         <class>sales/order_invoice_total_grand</class>
                         <after>shipping</after>
@@ -1430,10 +1414,6 @@
                         <class>sales/order_creditmemo_total_discount</class>
                         <after>subtotal</after>
                     </discount>
-		    <rebates>
-			<class>sales/order_creditmemo_total_rebates</class>
-			<after>discount</after>
-		    </rebates>
                     <grand_total>
                         <class>sales/order_creditmemo_total_grand</class>
                         <after>shipping,subtotal</after>
@@ -1475,16 +1455,6 @@
                     <display_zero>0</display_zero>
                     <sort_order>200</sort_order>
                 </discount>
-		<rebates translate="title">
-		    <title>Rebates</title>
-		    <source_field>discount_amount</source_field>
-                    <amount_prefix></amount_prefix>
-                    <title_source_field>rebate_description</title_source_field>
-                    <font_size>7</font_size>
-                    <display_zero>0</display_zero>
-                    <sort_order>201</sort_order>
-
-		</rebates>
                 <shipping translate="title">
                     <title>Shipping &amp; Handling</title>
                     <source_field>shipping_amount</source_field>
@@ -1669,7 +1639,6 @@
         <sales>
             <totals_sort>
                 <discount>20</discount>
-		<rebates>25</rebates>
                 <grand_total>100</grand_total>
                 <shipping>30</shipping>
                 <subtotal>10</subtotal>

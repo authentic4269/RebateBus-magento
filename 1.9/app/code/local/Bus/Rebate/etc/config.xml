@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Bus_Rebate>
+            <version>0.1.0</version>
+        </Bus_Rebate>
+    </modules>
+    <frontend>
+	<routers>
+		<checkout>
+			<args>
+				<modules>
+					<Bus_Rebate before="Mage_Checkout">Bus_Rebate</Bus_Rebate>
+				</modules>
+			</args>
+		</checkout>
+	</routers>
+    </frontend>
+    <global>
+        <blocks>
+            <rebatebus>
+                <class>Bus_Rebate_Block</class>
+            </rebatebus>
+        </blocks>
+	<models>
+		<rebate>
+				<class>Bus_Rebate_Model</class>
+				<resourceModel>rebate_resource</resourceModel>
+		</rebate>
+		<rebate_resource>
+			<class>Bus_Rebate_Model_Resource</class>	
+			<entities>
+				<rebate>
+					<table>sales_flat_quote_item_rebate</table>
+				</rebate>
+			</entities>
+		</rebate_resource>
+	</models>
+    </global>
+</config>

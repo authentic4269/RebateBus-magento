@@ -107,7 +107,6 @@ Default layout, loads most of the pages
                     <block type="checkout/onepage_link" name="checkout.cart.methods.onepage.bottom" template="checkout/onepage/link.phtml"/>
                     <block type="checkout/multishipping_link" name="checkout.cart.methods.multishipping" template="checkout/multishipping/link.phtml"/>
                 </block>
-		<block type="checkout/cart_rebates" name="checkout.cart.rebates" as="rebates" template="checkout/cart/rebates.phtml"/>
                 <block type="checkout/cart_coupon" name="checkout.cart.coupon" as="coupon" template="checkout/cart/coupon.phtml"/>
                 <block type="core/text_list" name="checkout.cart.extra" translate="label">
                     <label>Checkout Forms Extra</label>

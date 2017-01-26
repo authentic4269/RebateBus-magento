@@ -590,7 +590,6 @@ class Mage_Checkout_CartController extends Mage_Core_Controller_Front_Action
 	        $this->_goBack();
 
 	} else {
-		Mage::log("in add rebate", null, "rebatebus.log");
 		$productId = (int) $this->getRequest()->getParam('product');
 		$verification = (string) $this->getRequest()->getParam('verification');
 		$maxqty = (int) $this->getRequest()->getParam('maxqty');

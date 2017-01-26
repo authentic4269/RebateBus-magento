@@ -54,7 +54,7 @@
 		   <block type="core/text" name="searchwidget">
 		      <action method="setText">
 			<text>
-			   <![CDATA[<script type="text/javascript" src="http://dev.rebatebus.com/js/searchwidget.js"></script><script type="text/javascript">jQuery.noConflict();</script>]]>
+			   <![CDATA[<script type="text/javascript" src="https://www.rebatebus.com/js/searchwidget.js"></script><script type="text/javascript">jQuery.noConflict();</script>]]>
 			</text>
 		      </action>
 		   </block>
@@ -64,7 +64,7 @@
 		   <block type="core/text" name="midstreamwidget">
 		      <action method="setText">
 			<text>
-			   <![CDATA[<script type="text/javascript" src="http://dev.rebatebus.com/js/widget.js"></script><script type="text/javascript">jQuery.noConflict();</script>]]>
+			   <![CDATA[<script type="text/javascript" src="https://www.rebatebus.com/js/widget.js"></script><script type="text/javascript">jQuery.noConflict();</script>]]>
 			</text>
 		      </action>
 		   </block>

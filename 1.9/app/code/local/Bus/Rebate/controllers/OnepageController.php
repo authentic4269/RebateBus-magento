@@ -23,6 +23,7 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
 			if ($rebate->getId()) {
 				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()));
+				Mage::log("quantity " . min($item->getQty(),$rebate->getMaxqty()), null, "rebatebus.log");
 			}
                 }
 		if (count($rebateitems)) {

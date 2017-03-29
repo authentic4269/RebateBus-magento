@@ -56,7 +56,6 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
 		    }
 		    $totalRebateAmount += $rebateAmount;
 		    $baseTotalRebateAmount += $rebateAmount;
-		    Mage::log("qty: " . $item->getQty(), null, 'rebatebus.log');
 
 		    $item->setRowTotalWithDiscount($item->getRowTotalWithDiscount() - $rebateAmount);
 		    $item->setBaseRowTotalWithDiscount($item->getBaseRowTotalWithDiscount() - $rebateAmount);
@@ -64,6 +63,7 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
                     $baseSubtotalWithDiscount+=$item->getBaseRowTotalWithDiscount();
 		} 
 	}
+	Mage::log("qty: " . $item->getQty(), null, 'rebatebus.log');
 	$address->setRebatesAmount($totalRebateAmount);
 	$address->setBaseRebatesAmount($baseTotalRebateAmount);
 	$address->setGrandTotal($address->getGrandTotal() - $totalRebateAmount);

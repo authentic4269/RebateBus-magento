@@ -18,10 +18,26 @@
     </frontend>
     <global>
         <blocks>
+		<sales>
+			<rewrite>
+				<order_totals>Bus_Rebate_Block_Sales_Order_Totals</order_totals>	
+				<order_invoice_totals>Bus_Rebate_Block_Sales_Order_Invoice_Totals</order_invoice_totals>
+<!--				<order_creditmemo_totals>Bus_Rebate_Block_Sales_Order_Creditmemo_Totals</order_creditmemo_totals>-->
+			</rewrite>
+		</sales>
+		<adminhtml>
+			<rewrite>
+			    <sales_order_totals>Bus_Rebate_Adminhtml_Block_Sales_Order_Totals</sales_order_totals>
+			    <sales_order_invoice_totals>Bus_Rebate_Adminhtml_Block_Sales_Order_Invoice_Totals</sales_order_invoice_totals>
+			    <sales_order_creditmemo_totals>Bus_Rebate_Adminhtml_Block_Sales_Order_Creditmemo_Totals</sales_order_creditmemo_totals>
+
+			</rewrite>
+		</adminhtml>
+	
             <rebatebus>
                 <class>Bus_Rebate_Block</class>
             </rebatebus>
-        </blocks>
+	</blocks>
 	<models>
 		<rebate>
 				<class>Bus_Rebate_Model</class>
@@ -36,7 +52,7 @@
 			</entities>
 		</rebate_resource>
 	</models>
-	     <sales>
+	<sales>
 		 <quote>
 		     <totals>
 			 <rebates>
@@ -46,6 +62,30 @@
 			 </rebates>
 		     </totals>
 		 </quote>
-	     </sales>
+
+		 <order_invoice>
+		     <totals>
+			 <rebates>
+			     <class>rebate/order_invoice_rebates</class>
+			     <after>subtotal</after>
+			     <before>tax</before>
+			 </rebates>
+		     </totals>
+
+		 </order_invoice>
+
+
+		 <order_creditmemo>
+		     <totals>
+			 <rebates>
+			     <class>rebate/order_creditmemo_rebates</class>
+			     <after>subtotal</after>
+			     <before>tax</before>
+			 </rebates>
+		     </totals>
+
+		 </order_creditmemo>
+
+	</sales>
     </global>
 </config>

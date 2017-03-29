@@ -7,23 +7,22 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
      */
     public function saveOrderAction()
     {
-	Mage::log("in save order ", null, "rebatebus.log");
 	// BEGIN Rebate Confirm Section
-		$apikey = "BRZpFWWyUGFPlSS9";
-	        $uid = 1;
+		$apikey = "YOUR_API_KEY";
+	        $uid = YOUR_UID;
 	        $url = 'https://www.rebatebus.com/api/applymidstream';
 
                 $rebateitems = array();
 		$shipdata = Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getData();	
 		$billdata = Mage::getSingleton('checkout/session')->getQuote()->getBillingAddress()->getData();	
         	$result = array();
-
+		$amount = 0.0;
 
                 foreach (Mage::getSingleton('checkout/session')->getQuote()->getAllItems() as $item) {
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
 			if ($rebate->getId()) {
 				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()));
-				Mage::log("quantity " . min($item->getQty(),$rebate->getMaxqty()), null, "rebatebus.log");
+				$amount = $amount + $rebate->getAmount * min($item->getQty(), $rebate->getMaxqty());
 			}
                 }
 		if (count($rebateitems)) {
@@ -39,6 +38,7 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 			$context  = stream_context_create($options);
 			$response = file_get_contents($url, false, $context);
 			$jsondata = json_decode($response);
+
 			if ($jsondata->error) {
 
 			    $result['success'] = false;
@@ -48,7 +48,6 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 			    return;
 			}
 		}
-		Mage::log("calling parent save order ", null, "rebatebus.log");
 		parent::saveOrderAction();
 
 

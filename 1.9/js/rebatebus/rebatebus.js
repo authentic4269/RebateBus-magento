@@ -12,7 +12,7 @@
  */
 
 var UID = 43;
-var PUB_API_KEY = "AgQ6p4gmMJjYlBoM";
+var PUB_API_KEY = "H0FiXUMfNGWz2XOc";
 var initial_price = 15.99;
 var server = "https://www.rebatebus.com/"
 var products = [];
@@ -25,14 +25,20 @@ function updateRebatePriceQuotes(productid, incentive) {
 	var amount = parseFloat(incentive.rebateAmount); // widget delivers rebateAmount in a string
 	var pric = jQuery("#" + productid + " .pric1");
 	var programimg = document.createElement("img");
-	programimg.src = "https://www.rebatebus.com/assets/programimages/" + incentive.program + ".png";
+	if (incentive.useutilitylogos) {
+		programimg.src = server + "assets/utilityimages/" + incentive.program + "/" + incentive.utilityname + ".png";
+		jQuery("#" + productid + " .disc").text("$" + incentive.rebateAmount + " rebate from " + incentive.utilityname);
+	}
+	else {
+		jQuery("#" + productid + " .disc").text("$" + incentive.rebateAmount + " rebate from " + incentive.program);
+		programimg.src = server + "assets/programimages/" + incentive.program + ".png";
+	}
 	programimg.style['max-width'] = "9em";
 	programimg.style['margin'] = "0 auto";
 	programimg.setAttribute("id", productid + "img");
 	pric.text("");
 	pric.append("<del>$" + incentive.msrp.toFixed(2) + "</del>");
 	jQuery("#" + productid + " .pric2").text("$" + (incentive.msrp - amount).toFixed(2));
-	jQuery("#" + productid + " .disc").text("$" + incentive.rebateAmount + " rebate from " + incentive.program);
 	jQuery("#" + productid).append(programimg);
 }
 
@@ -62,7 +68,14 @@ var updateRebateApplySection = function(productid, incentive) {
 	jQuery('#discount-rebates-button').off("click");
 	var wrapper = jQuery("#discount-rebates-wrapper")
 	var programimg = jQuery("#discount-rebates-programimg");
-	programimg.attr('src', "https://www.rebatebus.com/assets/programimages/" + incentive.program + ".png");
+	if (incentive.useutilitylogos) {
+		programimg.src = server + "assets/utilityimages/" + incentive.program + "/" + incentive.utilityname + ".png";
+		programimg.attr('src', server + "assets/utilityimages/" + incentive.program + "/" + incentive.utilityname + ".png");
+	}
+	else {
+		programimg.attr('src', server + "assets/programimages/" + incentive.program + ".png");
+	}
+	
 	wrapper.append();
 	jQuery("#discount-rebates-button").click(function() {
 		doRebateApp(applyProducts, UID, PUB_API_KEY);

@@ -77,7 +77,7 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
 		$address->addTotal(array(
 			'code'=>"rebates",
 			'title'=>"Incentives",
-			'value'=>(-1.0 * $address->getRebatesAmount())
+			'value'=>($address->getRebatesAmount() * -1.0)
 		));
 	}
         return $this;

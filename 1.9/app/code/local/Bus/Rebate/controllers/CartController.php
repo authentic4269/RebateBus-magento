@@ -29,6 +29,7 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 		$maxqty = (int) $this->getRequest()->getParam('maxqty');
 		$amount = (float) $this->getRequest()->getParam('amount');
 		$program = (string) $this->getRequest()->getParam('program');
+		$busid = (string) $this->getRequest()->getParam('busid');
 		// No reason continue with empty shopping cart
 		if (!$this->_getCart()->getQuote()->getItemsCount()) {
 	            $this->_goBack();
@@ -44,6 +45,7 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 				$model->setMaxqty($maxqty);
 				$model->setProgram($program);
 				$model->setItemId($item->getId());	
+				$model->setBusid($busid);
 				Mage::log('saving rebate', null, 'rebatebus.log');
 				$model->save();
 				Mage::log('saved rebate', null, 'rebatebus.log');

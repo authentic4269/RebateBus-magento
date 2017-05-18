@@ -29,7 +29,7 @@ class Bus_Rebate_Model_Order_Creditmemo_Rebates extends Mage_Sales_Model_Order_C
 {
     public function collect(Mage_Sales_Model_Order_Creditmemo $memo)
     {
-        parent::collect($invoice);
+        parent::collect($memo);
  
 	$totalRebateAmount = 0;
 	$baseTotalRebateAmount = 0;
@@ -74,8 +74,8 @@ class Bus_Rebate_Model_Order_Creditmemo_Rebates extends Mage_Sales_Model_Order_C
 		$order->getBaseDiscountInvoiced() + $totalRebateAmount
 	);
 
-	$memo->setGrandTotal($invoice->getGrandTotal() - $totalRebateAmount);
-	$memo->setBaseGrandTotal($invoice->getBaseGrandTotal() - $totalRebateAmount);
+	$memo->setGrandTotal($order->getGrandTotal() - $totalRebateAmount);
+	$memo->setBaseGrandTotal($order->getBaseGrandTotal() - $totalRebateAmount);
 
     }
 

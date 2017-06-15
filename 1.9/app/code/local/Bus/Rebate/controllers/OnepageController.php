@@ -8,9 +8,9 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
     public function saveOrderAction()
     {
 	// BEGIN Rebate Confirm Section
-		$apikey = "JW1P2XNmXt4BkHVH";
-	        $uid = 43;
-	        $url = curl_init('https://www.rebatebus.com/api/applymidstream');
+		$apikey = "YOUR_API_KEY";
+	        $uid = YOUR_UID;
+	        $url = 'https://www.rebatebus.com/api/applymidstream';
 
                 $rebateitems = array();
 		$shipdata = Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getData();	
@@ -21,9 +21,7 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 		Mage::log("doing save order", null, "rebatebus.log");
                 foreach (Mage::getSingleton('checkout/session')->getQuote()->getAllItems() as $item) {
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
-			Mage::log("in save order", null, "rebatebus.log");
 			if ($rebate->getId()) {
-				Mage::log("in save order got rebate item", null, "rebatebus.log");
 				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()));
 				$amount = $amount + $rebate->getAmount * min($item->getQty(), $rebate->getMaxqty());
 				$busid = $rebate->getBusid();
@@ -40,6 +38,7 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 			    )
 			);
 			Mage::log("sending approval request", null, "rebatebus.log");
+			/*	
 			$json = json_encode($postdata);
 			curl_setopt($url, CURLOPT_CUSTOMREQUEST, "POST");
 			curl_setopt($url, CURLOPT_POSTFIELDS, $json);
@@ -48,10 +47,11 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 				    'Content-Type: application/json',                                                                                
 				    'Content-Length: ' . strlen($json)
 			));
-//			$context  = stream_context_create($options);
-//			$response = file_get_contents($url, false, $context);
-			$response = curl_exec($url);
-			if (curl_error($url)) {
+			*/
+			$context  = stream_context_create($options);
+			$response = file_get_contents($url, false, $context);
+//			$response = curl_exec($url);
+/*			if (curl_error($url)) {
 			    Mage::log("got error", null, "rebatebus.log");
 
 			    $result['success'] = false;
@@ -62,20 +62,28 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 			    return;
 	
 			}
-			$jsondata = json_decode($response, true);
-				
-			Mage::log($response, null, "rebatebus.log");
-			if ($jsondata->error) {
-			    Mage::log("got error", null, "rebatebus.log");
+*/
+			try {
+				$jsondata = json_decode($response, true);
+					
+				Mage::log($response, null, "rebatebus.log");
+				if ($jsondata["error"]) {
+				    Mage::log("got error", null, "rebatebus.log");
 
-			    $result['success'] = false;
-			    $result['error'] = true;
-			    $result['error_messages'] = $this->__('Error processing your utility incentive: ' . $jsondata->error);
-			    $this->_prepareDataJSON($result);
-			    curl_close($url);
-			    return;
+				    $result['success'] = false;
+				    $result['error'] = true;
+				    $result['error_messages'] = $this->__('Error processing your utility incentive: ' . $jsondata["error"]);
+				    $this->_prepareDataJSON($result);
+				    curl_close($url);
+				    return;
+				}
+			} catch (Exception $e) {
+				    $result['success'] = false;
+				    $result['error'] = true;
+				    $result['error_messages'] = $this->__('Error processing your utility incentive: ' . $e->getMessage());
+	
 			}
-			curl_close($url);
+//			curl_close($url);
 		}
 		parent::saveOrderAction();
 

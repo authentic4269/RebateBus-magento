@@ -8,7 +8,7 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
     public function saveOrderAction()
     {
 	// BEGIN Rebate Confirm Section
-		$apikey = "YOUR_API_KEY";
+		$apikey = "YOUR_APIKEY";
 	        $uid = YOUR_UID;
 	        $url = 'https://www.rebatebus.com/api/applymidstream';
 
@@ -22,8 +22,9 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
                 foreach (Mage::getSingleton('checkout/session')->getQuote()->getAllItems() as $item) {
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
 			if ($rebate->getId()) {
-				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()));
-				$amount = $amount + $rebate->getAmount * min($item->getQty(), $rebate->getMaxqty());
+//				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => ($item->getPrice() - $rebate->getAmount()));
+				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => $item->getPrice());
+				$amount = $amount + $rebate->getAmount() * min($item->getQty(), $rebate->getMaxqty());
 				$busid = $rebate->getBusid();
 			}
                 }
@@ -66,16 +67,21 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 			try {
 				$jsondata = json_decode($response, true);
 					
-				Mage::log($response, null, "rebatebus.log");
 				if ($jsondata["error"]) {
-				    Mage::log("got error", null, "rebatebus.log");
-
 				    $result['success'] = false;
 				    $result['error'] = true;
 				    $result['error_messages'] = $this->__('Error processing your utility incentive: ' . $jsondata["error"]);
 				    $this->_prepareDataJSON($result);
-				    curl_close($url);
 				    return;
+				} 
+				if (strpos($http_response_header[0], "200") == false) {
+				    Mage::log("got error", null, "rebatebus.log");
+				    $result['success'] = false;
+				    $result['error'] = true;
+				    $result['error_messages'] = $this->__('Error processing your utility incentive: ' . $http_response_header[0]);
+				    $this->_prepareDataJSON($result);
+				    return;
+
 				}
 			} catch (Exception $e) {
 				    $result['success'] = false;

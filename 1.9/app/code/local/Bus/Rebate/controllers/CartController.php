@@ -30,25 +30,28 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 		$amount = (float) $this->getRequest()->getParam('amount');
 		$program = (string) $this->getRequest()->getParam('program');
 		$busid = (string) $this->getRequest()->getParam('busid');
+		$cap = (float) $this->getRequest()->getParam('cap');
 		// No reason continue with empty shopping cart
 		if (!$this->_getCart()->getQuote()->getItemsCount()) {
 	            $this->_goBack();
 		    return;
 		}
 		foreach (Mage::getModel('checkout/cart')->getQuote()->getAllItems() as $item) {
-			Mage::log('comparing item...', null, 'rebatebus.log');
 			if ($item->getSku() == 	$productId) {
-				Mage::log('got item...', null, 'rebatebus.log');
 				$model = Mage::getModel('rebate/rebate');
+				if ($cap) {
+					if ($item->getPrice() * ($cap / 100.0) < $amount)
+						$amount = $item->getPrice() * ($cap / 100.0);
+				}
 				$model->setAmount($amount);
 				$model->setVerification($verification);
 				$model->setMaxqty($maxqty);
 				$model->setProgram($program);
 				$model->setItemId($item->getId());	
 				$model->setBusid($busid);
-				Mage::log('saving rebate', null, 'rebatebus.log');
+				$model->setCap($cap);
 				$model->save();
-				Mage::log('saved rebate', null, 'rebatebus.log');
+				Mage::log('saved rebate with amount ' . $model->getAmount(), null, 'rebatebus.log');
 				$this->_getSession()->addSuccess(
 					'Rebate was applied'
 				);

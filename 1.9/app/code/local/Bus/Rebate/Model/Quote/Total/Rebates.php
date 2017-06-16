@@ -48,12 +48,20 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
 	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
 		if ($rebate->getId()) {
 		    $rebateAmount = 0;
+		    $qty = 0;
 		    if ($rebate->getMaxqty() < $item->getQty()) {
 			    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
+			    $qty = $rebate->getMaxqty();
 		    }
 		    else {
 			    $rebateAmount = $rebate->getAmount() * $item->getQty();
+			    $qty = $item->getQty();
 		    }
+		    if ($rebate->getCap()) {
+			if (($item->getPrice() * ($rebate->getCap() / 100.0)) < $rebate->getAmount()) {
+			    $rebateAmount = $item->getPrice() * ($rebate->getCap() / 100.0) * $qty;	
+			}
+		    }	
 		    $totalRebateAmount += $rebateAmount;
 		    $baseTotalRebateAmount += $rebateAmount;
 

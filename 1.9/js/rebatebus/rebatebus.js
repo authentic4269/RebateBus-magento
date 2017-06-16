@@ -104,7 +104,7 @@ window.onload = function() {
 // if .item, we're on a catalog or search page. if .price-box, we're on a single product page
 	var updateFn = updateRebatePriceQuotes;
 	var clearFn = clearRebatePriceQuotes;
-	var showdownstream = 0;
+	var showdownstream = 1;
 	if (jQuery(".product-cart-info").length) {
 		// if they've already gotten an incentive there's no need
 		if (!document.getElementById("rebate-remove-submit")) {

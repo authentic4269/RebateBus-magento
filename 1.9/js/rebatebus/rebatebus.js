@@ -15,8 +15,8 @@
  * Mitch Vogel, 8/10/2017
  */
 
-var UID = 43;
-var PUB_API_KEY = "H0FiXUMfNGWz2XOc";
+var UID = YOUR_UID;
+var PUB_API_KEY = "YOUR_API_KEY";
 var initial_price = 15.99;
 var server = "https://www.rebatebus.com/"
 var products = [];

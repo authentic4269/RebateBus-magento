@@ -25,6 +25,19 @@
  */
 ?>
 <div class="product-options" id="product-options-wrapper">
+    <ul style="display: none;" id="product-configurable-simples">
+<?php
+	$product = $this->getProduct();
+	$configurable= Mage::getModel('catalog/product_type_configurable')->setProduct($product);
+	$simpleCollection = $configurable->getUsedProductCollection()->addAttributeToSelect('*')->addFilterByRequiredOptions();
+	
+	foreach($simpleCollection as $simple){
+		echo '<li class="config-product-associated"  id="configproduct' . $simple->getSku() . '">' . $simple->getName() . '</li>';
+	}
+
+?>
+    </ul>
+
     <?php echo $this->getChildHtml('', true, true);?>
     <?php if ($this->hasRequiredOptions()):?>
         <p class="required"><?php echo $this->__('* Required Fields') ?></p>

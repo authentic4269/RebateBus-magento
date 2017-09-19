@@ -36,32 +36,35 @@ class Bus_Rebate_Model_Order_Invoice_Rebates extends Mage_Sales_Model_Order_Invo
 	$subtotalWithDiscount = 0;
 	$baseSubtotalWithDiscount = 0;
 	$order = $invoice->getOrder(); 
-        $items = $order->getAllVisibleItems();
+        $items = $order->getAllItems();
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through
         }
+	Mage::log("collecting for invoice", null, "rebatebus.log");
  
         foreach ($items as $item) {
-		Mage::log("collecting for item " . $item->getQuoteItemId(), null, "rebatebus.log");
-	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
-		$rebateAmount = 0;
-		if ($rebate->getId()) {
-		    if ($rebate->getMaxqty() < $item->getQtyOrdered()) {
-			    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
-		    }
-		    else {
-			    $rebateAmount = $rebate->getAmount() * $item->getQtyOrdered();
-		    }
-		    $totalRebateAmount += $rebateAmount;
-		    $baseTotalRebateAmount += $rebateAmount;
+		if ($item->getProductType() == 'simple') {
+			$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
+			$rebateAmount = 0;
+			if ($rebate->getId()) {
+			    Mage::log("collecting for item " . $item->getQuoteItemId(), null, "rebatebus.log");
+			    if ($rebate->getMaxqty() < $item->getQtyOrdered()) {
+				    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
+			    }
+			    else {
+				    $rebateAmount = $rebate->getAmount() * $item->getQtyOrdered();
+			    }
+			    $totalRebateAmount += $rebateAmount;
+			    $baseTotalRebateAmount += $rebateAmount;
 
-//		    $item->setRowTotalWithDiscount($item->getRowTotalWithDiscount() - $rebateAmount);
-//		    $item->setBaseRowTotalWithDiscount($item->getBaseRowTotalWithDiscount() - $rebateAmount);
+	//		    $item->setRowTotalWithDiscount($item->getRowTotalWithDiscount() - $rebateAmount);
+	//		    $item->setBaseRowTotalWithDiscount($item->getBaseRowTotalWithDiscount() - $rebateAmount);
 
-                    $subtotalWithDiscount+=$item->getRowTotalWithDiscount();
-                    $baseSubtotalWithDiscount+=$item->getBaseRowTotalWithDiscount();
-		} 
-		$order->addStatusHistoryComment('Approved RebateBus Incentive Amount: ' . $rebateAmount . ", Product: " . $item->getName() . ", Verification Code: " . $rebate->getVerification() . ", Program: " . $rebate->getProgram());
+			    $subtotalWithDiscount+=$item->getRowTotalWithDiscount();
+			    $baseSubtotalWithDiscount+=$item->getBaseRowTotalWithDiscount();
+			    $order->addStatusHistoryComment('Approved RebateBus Incentive Amount: ' . $rebateAmount . ", Product: " . $item->getName() . ", Verification Code: " . $rebate->getVerification() . ", Program: " . $rebate->getProgram());
+			} 
+		}
 	}
 /*
 	// TODO add similar invoice rebate amounts 

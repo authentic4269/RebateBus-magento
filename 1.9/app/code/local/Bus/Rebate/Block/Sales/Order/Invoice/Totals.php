@@ -1,6 +1,7 @@
 <?php 
 
-class Bus_Rebate_Adminhtml_Block_Sales_Order_Invoice_Totals extends Mage_Adminhtml_Block_Sales_Order_Invoice_Totals
+/*class Bus_Rebate_Adminhtml_Block_Sales_Order_Invoice_Totals extends Mage_Adminhtml_Block_Sales_Order_Invoice_Totals*/
+class Bus_Rebate_Block_Sales_Order_Invoice_Totals extends Mage_Sales_Block_Order_Invoice_Totals
 {
     /**
      * Initialize order totals array
@@ -10,17 +11,16 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Invoice_Totals extends Mage_Adminht
     protected function _initTotals()
     {
         parent::_initTotals();
-	$order = $this->getInvoice()->getOrder();
+/*	$order = $this->getInvoice()->getAllItems();*/
         $amount = 0;
- 	$items = $order->getAllVisibleItems();
+/* 	$items = $order->getAllVisibleItems();*/
+ 	$items = $this->getInvoice->getAllVisibleItems();
 	$program = "";
-	Mage::log("doing invoice totals", null, "rebatebus.log");
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through
         }
  
         foreach ($items as $item) {
-		Mage::log("in order_invoice_totals " . $item->getQuoteItemId(), null, "rebatebus.log");
 	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
 		if ($rebate->getId()) {
 		    $rebateAmount = 0;
@@ -36,12 +36,19 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Invoice_Totals extends Mage_Adminht
 	}
 
         if ($amount) {
-            $this->addTotalBefore(new Varien_Object(array(
+/*            $this->addTotalBefore(new Varien_Object(array(
                 'code'      => 'bus_rebate',
                 'value'     => $amount,
                 'base_value'=> $amount,
                 'label'     => 'Rebate Bus Incentive from ' . $program,
             ), array('shipping', 'tax')));
+*/ 
+            $this->addTotal(new Varien_Object(array(
+                'code'      => 'bus_rebate',
+                'value'     => $amount,
+                'base_value'=> $amount,
+                'label'     => 'Rebate Bus Incentive from ' . $program,
+            )));
         }
  
         return $this;

@@ -19,7 +19,7 @@ class Bus_Rebate_Block_Sales_Order_Totals extends Mage_Sales_Block_Order_Totals
  
         foreach ($items as $item) {
 		
-		Mage::log("id " . $item->getQuoteItemId(), null, "rebatebus.log");
+		Mage::log("checking id " . $item->getQuoteItemId(), null, "rebatebus.log");
 	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
 		if ($rebate->getId()) {
 		    $rebateAmount = 0;

@@ -1,6 +1,7 @@
 <?php 
 
-class Bus_Rebate_Adminhtml_Block_Sales_Order_Creditmemo_Totals extends Mage_Adminhtml_Block_Sales_Order_Creditmemo_Totals
+/*class Bus_Rebate_Adminhtml_Block_Sales_Order_Creditmemo_Totals extends Mage_Adminhtml_Block_Sales_Order_Creditmemo_Totals*/
+class Bus_Rebate_Adminhtml_Block_Sales_Order_Creditmemo_Totals extends Mage_Sales_Block_Order_Creditmemo_Totals
 {
     /**
      * Initialize order totals array
@@ -10,9 +11,10 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Creditmemo_Totals extends Mage_Admi
     protected function _initTotals()
     {
         parent::_initTotals();
-	$order = $this->getCreditmemo()->getOrder();
+/*	$order = $this->getCreditmemo()->getOrder();*/
         $amount = 0;
- 	$items = $order->getAllVisibleItems();
+/* 	$items = $order->getAllVisibleItems();*/
+	$items = $this->getCreditmemo->getAllItems();
 	$program = "";
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through
@@ -34,12 +36,20 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Creditmemo_Totals extends Mage_Admi
 	}
 
         if ($amount) {
-            $this->addTotalBefore(new Varien_Object(array(
+/*            $this->addTotalBefore(new Varien_Object(array(
                 'code'      => 'bus_rebate',
                 'value'     => $amount,
                 'base_value'=> $amount,
                 'label'     => 'Rebate Bus Incentive from ' . $program,
             ), array('shipping', 'tax')));
+*/
+            $this->addTotal(new Varien_Object(array(
+                'code'      => 'bus_rebate',
+                'value'     => $amount,
+                'base_value'=> $amount,
+                'label'     => 'Rebate Bus Incentive from ' . $program,
+            )));
+
         }
  
         return $this;

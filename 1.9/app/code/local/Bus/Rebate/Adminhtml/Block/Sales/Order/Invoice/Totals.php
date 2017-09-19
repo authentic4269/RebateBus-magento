@@ -12,27 +12,27 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Invoice_Totals extends Mage_Adminht
         parent::_initTotals();
 	$order = $this->getInvoice()->getOrder();
         $amount = 0;
- 	$items = $order->getAllVisibleItems();
+ 	$items = $order->getAllItems();
 	$program = "";
-	Mage::log("doing invoice totals", null, "rebatebus.log");
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through
         }
  
         foreach ($items as $item) {
-		Mage::log("in order_invoice_totals " . $item->getQuoteItemId(), null, "rebatebus.log");
-	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
-		if ($rebate->getId()) {
-		    $rebateAmount = 0;
-		    $program = $rebate->getProgram();
-		    if ($rebate->getMaxqty() < $item->getQtyOrdered()) {
-			    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
-		    }
-		    else {
-			    $rebateAmount = $rebate->getAmount() * $item->getQtyOrdered();
-		    }
-		    $amount += $rebateAmount;
-		} 
+		if ($item->getProductType() == 'simple') {
+			$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
+			if ($rebate->getId()) {
+			    $rebateAmount = 0;
+			    $program = $rebate->getProgram();
+			    if ($rebate->getMaxqty() < $item->getQtyOrdered()) {
+				    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
+			    }
+			    else {
+				    $rebateAmount = $rebate->getAmount() * $item->getQtyOrdered();
+			    }
+			    $amount += $rebateAmount;
+			} 
+		}
 	}
 
         if ($amount) {

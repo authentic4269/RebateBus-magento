@@ -8,7 +8,7 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
     public function saveOrderAction()
     {
 	// BEGIN Rebate Confirm Section
-		$apikey = "YOUR_APIKEY";
+		$apikey = "YOUR_API_KEY";
 	        $uid = YOUR_UID;
 	        $url = 'https://www.rebatebus.com/api/applymidstream';
 
@@ -18,14 +18,23 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
         	$result = array();
 		$amount = 0.0;
 		$busid = "";
-		Mage::log("doing save order", null, "rebatebus.log");
+		$price = 0;
                 foreach (Mage::getSingleton('checkout/session')->getQuote()->getAllItems() as $item) {
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
-			if ($rebate->getId()) {
-//				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => ($item->getPrice() - $rebate->getAmount()));
-				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => $item->getPrice());
-				$amount = $amount + $rebate->getAmount() * min($item->getQty(), $rebate->getMaxqty());
-				$busid = $rebate->getBusid();
+			if ($item->getProductType() == 'simple') {
+				if ($rebate->getId()) {
+	//				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => ($item->getPrice() - $rebate->getAmount()));
+					if ($item->getParentProductId()) {	
+						$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => $item->getParentItem()->getPrice());
+						$amount = $amount + $rebate->getAmount() * min($item->getQty(), $rebate->getMaxqty());
+					
+					}
+					else {
+						$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => $item->getPrice());
+						$amount = $amount + $rebate->getAmount() * min($item->getQty(), $rebate->getMaxqty());
+					}
+					$busid = $rebate->getBusid();
+				}
 			}
                 }
 		if (count($rebateitems)) {
@@ -38,32 +47,8 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 				'content' => http_build_query($postdata)
 			    )
 			);
-			Mage::log("sending approval request", null, "rebatebus.log");
-			/*	
-			$json = json_encode($postdata);
-			curl_setopt($url, CURLOPT_CUSTOMREQUEST, "POST");
-			curl_setopt($url, CURLOPT_POSTFIELDS, $json);
-			curl_setopt($url, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($url, CURLOPT_HTTPHEADER, array(
-				    'Content-Type: application/json',                                                                                
-				    'Content-Length: ' . strlen($json)
-			));
-			*/
 			$context  = stream_context_create($options);
 			$response = file_get_contents($url, false, $context);
-//			$response = curl_exec($url);
-/*			if (curl_error($url)) {
-			    Mage::log("got error", null, "rebatebus.log");
-
-			    $result['success'] = false;
-			    $result['error'] = true;
-			    $result['error_messages'] = $this->__('Error contacting utility incentive server - please remove the incentive, contact customer support, or try again later. Error: ' . curl_error($url));
-			    $this->_prepareDataJSON($result);
-			    curl_close($url);
-			    return;
-	
-			}
-*/
 			try {
 				$jsondata = json_decode($response, true);
 					
@@ -89,7 +74,6 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 				    $result['error_messages'] = $this->__('Error processing your utility incentive: ' . $e->getMessage());
 	
 			}
-//			curl_close($url);
 		}
 		parent::saveOrderAction();
 

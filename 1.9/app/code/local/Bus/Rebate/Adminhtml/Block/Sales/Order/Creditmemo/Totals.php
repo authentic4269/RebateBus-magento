@@ -12,25 +12,27 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Creditmemo_Totals extends Mage_Admi
         parent::_initTotals();
 	$order = $this->getCreditmemo()->getOrder();
         $amount = 0;
- 	$items = $order->getAllVisibleItems();
+ 	$items = $order->getAllItems();
 	$program = "";
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through
         }
  
         foreach ($items as $item) {
-	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
-		if ($rebate->getId()) {
-		    $rebateAmount = 0;
-		    $program = $rebate->getProgram();
-		    if ($rebate->getMaxqty() < $item->getQtyOrdered()) {
-			    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
-		    }
-		    else {
-			    $rebateAmount = $rebate->getAmount() * $item->getQtyOrdered();
-		    }
-		    $amount += $rebateAmount;
-		} 
+		if ($item->getProductType() == 'simple') {
+			$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
+			if ($rebate->getId()) {
+			    $rebateAmount = 0;
+			    $program = $rebate->getProgram();
+			    if ($rebate->getMaxqty() < $item->getQtyOrdered()) {
+				    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
+			    }
+			    else {
+				    $rebateAmount = $rebate->getAmount() * $item->getQtyOrdered();
+			    }
+			    $amount += $rebateAmount;
+			} 
+		}
 	}
 
         if ($amount) {

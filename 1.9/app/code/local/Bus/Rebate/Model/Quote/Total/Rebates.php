@@ -45,33 +45,41 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
         }
  
         foreach ($items as $item) {
-	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
-		if ($rebate->getId()) {
-		    $rebateAmount = 0;
-		    $qty = 0;
-		    if ($rebate->getMaxqty() < $item->getQty()) {
-			    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
-			    $qty = $rebate->getMaxqty();
-		    }
-		    else {
-			    $rebateAmount = $rebate->getAmount() * $item->getQty();
-			    $qty = $item->getQty();
-		    }
-		    if ($rebate->getCap()) {
-			if (($item->getPrice() * ($rebate->getCap() / 100.0)) < $rebate->getAmount()) {
-			    $rebateAmount = $item->getPrice() * ($rebate->getCap() / 100.0) * $qty;	
-			}
-		    }	
-		    $totalRebateAmount += $rebateAmount;
-		    $baseTotalRebateAmount += $rebateAmount;
+		if ($item->getProductType() == "simple") {
+			$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
+			if ($rebate->getId()) {
+			    $rebateAmount = 0;
+			    $qty = 0;
+			    if ($rebate->getMaxqty() < $item->getQty()) {
+				    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
+				    $qty = $rebate->getMaxqty();
+			    }
+			    else {
+				    $rebateAmount = $rebate->getAmount() * $item->getQty();
+				    $qty = $item->getQty();
+			    }
+			    if ($rebate->getCap()) {
+				if ($item->getParentItemId()) {
+					if (($item->getParentItem()->getPrice() * ($rebate->getCap() / 100.0)) < $rebate->getAmount()) {
+					    $rebateAmount = $item->getParentItem()->getPrice() * ($rebate->getCap() / 100.0) * $qty;	
+					}
 
-		    $item->setRowTotalWithDiscount($item->getRowTotalWithDiscount() - $rebateAmount);
-		    $item->setBaseRowTotalWithDiscount($item->getBaseRowTotalWithDiscount() - $rebateAmount);
-                    $subtotalWithDiscount+=$item->getRowTotalWithDiscount();
-                    $baseSubtotalWithDiscount+=$item->getBaseRowTotalWithDiscount();
-		} 
+				} else {
+					if (($item->getPrice() * ($rebate->getCap() / 100.0)) < $rebate->getAmount()) {
+					    $rebateAmount = $item->getPrice() * ($rebate->getCap() / 100.0) * $qty;	
+					}
+				}
+			    }	
+			    $totalRebateAmount += $rebateAmount;
+			    $baseTotalRebateAmount += $rebateAmount;
+
+			    $item->setRowTotalWithDiscount($item->getRowTotalWithDiscount() - $rebateAmount);
+			    $item->setBaseRowTotalWithDiscount($item->getBaseRowTotalWithDiscount() - $rebateAmount);
+			    $subtotalWithDiscount+=$item->getRowTotalWithDiscount();
+			    $baseSubtotalWithDiscount+=$item->getBaseRowTotalWithDiscount();
+			} 
+		}
 	}
-	Mage::log("qty: " . $item->getQty(), null, 'rebatebus.log');
 	$address->setRebatesAmount($totalRebateAmount);
 	$address->setBaseRebatesAmount($baseTotalRebateAmount);
 	$address->setGrandTotal($address->getGrandTotal() - $totalRebateAmount);
@@ -80,7 +88,6 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
 
     public function fetch(Mage_Sales_Model_Quote_Address $address)
     {
-	Mage::log("fetching", null, "rebatebus.log");
 	if ($address->getRebatesAmount() > 0) {
 		$address->addTotal(array(
 			'code'=>"rebates",

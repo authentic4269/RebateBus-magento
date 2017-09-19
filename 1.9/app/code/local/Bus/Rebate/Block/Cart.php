@@ -30,9 +30,11 @@ class Bus_Rebate_Block_Cart extends Mage_Core_Block_Template
 
     public function hasRebates() {
 	foreach (Mage::getModel('checkout/cart')->getQuote()->getAllItems() as $item) {
-	 	$rebate = Mage::getModel('rebate/rebate')->load($item->getId(),'item_id');
-		if ($rebate->getId()) {
-			return true;
+		if ($item->getProductType() == 'simple') {
+		 	$rebate = Mage::getModel('rebate/rebate')->load($item->getId(),'item_id');
+			if ($rebate->getId()) {
+				return true;
+			}
 		}
 	}
 	return false;
@@ -40,9 +42,11 @@ class Bus_Rebate_Block_Cart extends Mage_Core_Block_Template
 	
     public function getRebateImage() {
 	foreach (Mage::getModel('checkout/cart')->getQuote()->getAllItems() as $item) {
-	 	$rebate = Mage::getModel('rebate/rebate')->load($item->getId(),'item_id');
-		if ($rebate) {
-			return "https://www.rebatebus.com/assets/programs/" . $rebate->getProgram() . ".png";
+		if ($item->getProductType() == 'simple') {
+		 	$rebate = Mage::getModel('rebate/rebate')->load($item->getId(),'item_id');
+			if ($rebate) {
+				return "https://www.rebatebus.com/assets/programs/" . $rebate->getProgram() . ".png";
+			}
 		}
 	}
 	// shouldn't happen if we're showing applied incentives section
@@ -52,10 +56,12 @@ class Bus_Rebate_Block_Cart extends Mage_Core_Block_Template
     public function getRebateTexts() {
 	$text = "<table style='border-bottom: 1px solid lightgray; margin-bottom: 1em;'>";
 	foreach (Mage::getModel('checkout/cart')->getQuote()->getAllItems() as $item) {
-	 	$rebate = Mage::getModel('rebate/rebate')->load($item->getId(),'item_id');
-		if ($rebate) {
-			$amount = min($rebate->getMaxqty(), $item->getQty()) * $rebate->getAmount();
-			$text = $text . "<tr style='padding: 1em 0 1em 0'><td><strong>" . $item->getName() . ":</strong></td><td class='price a-right' style='padding-left: 2em;'>$" . number_format($amount, 2) . " Incentive</td></tr>";
+		if ($item->getProductType() == 'simple') {
+			$rebate = Mage::getModel('rebate/rebate')->load($item->getId(),'item_id');
+			if ($rebate) {
+				$amount = min($rebate->getMaxqty(), $item->getQty()) * $rebate->getAmount();
+				$text = $text . "<tr style='padding: 1em 0 1em 0'><td><strong>" . $item->getName() . ":</strong></td><td class='price a-right' style='padding-left: 2em;'>$" . number_format($amount, 2) . " Incentive</td></tr>";
+			}
 		}
 	}
 	$text = $text . "</table>";

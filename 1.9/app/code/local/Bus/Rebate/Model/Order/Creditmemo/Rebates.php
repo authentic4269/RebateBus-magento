@@ -42,7 +42,6 @@ class Bus_Rebate_Model_Order_Creditmemo_Rebates extends Mage_Sales_Model_Order_C
         }
  
         foreach ($items as $item) {
-		Mage::log("collecting for item " . $item->getQuoteItemId(), null, "rebatebus.log");
 	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
 		$rebateAmount = 0;
 		if ($rebate->getId()) {

@@ -14,7 +14,6 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 			if ($item->getProductType() == 'simple') {
 				$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
 				if ($rebate) {
-					Mage::log("found rebate", null, "rebatebus.log");
 					$this->_getSession()->addSuccess(
 						'Incentive Removed'
 					);
@@ -37,7 +36,6 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 	            $this->_goBack();
 		    return;
 		}
-		Mage::log("got here", null, "rebatebus.log");
 		foreach (Mage::getModel('checkout/cart')->getQuote()->getAllItems() as $item) {
 			if ($item->getProductType() == 'simple' && $item->getSku() == $productId) {
 				Mage::log("rebate applied " . $item->getSku(), null, "rebatebus.log");
@@ -51,9 +49,6 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 					if ($amount > $item->getPrice() * ($cap / 100.0))
 						$amount = $item->getPrice() * ($cap / 100.0);
 				}
-				Mage::log("rebate amount approved " . $amount, null, "rebatebus.log");
-				Mage::log("cap " . $cap, null, "rebatebus.log");
-				Mage::log("parent price " . $item->getParentItem()->getPrice(), null, "rebatebus.log");
 				$model->setAmount($amount);
 				$model->setVerification($verification);
 				$model->setMaxqty($maxqty);
@@ -62,9 +57,11 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 				$model->setBusid($busid);
 				$model->setCap($cap);
 				$model->save();
+				Mage::log("rebate saved " . $model->getId(), null, "rebatebus.log");
 				$this->_getSession()->addSuccess(
 					'Rebate was applied'
 				);
+				return;
 			}
 		}
 		$this->_getSession()->addError('Rebate for product %s not found in cart', Mage::helper('core')->escapeHtml($productId));

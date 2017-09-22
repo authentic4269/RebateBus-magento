@@ -47,8 +47,31 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 				'content' => http_build_query($postdata)
 			    )
 			);
+			/*	
+			$json = json_encode($postdata);
+			curl_setopt($url, CURLOPT_CUSTOMREQUEST, "POST");
+			curl_setopt($url, CURLOPT_POSTFIELDS, $json);
+			curl_setopt($url, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($url, CURLOPT_HTTPHEADER, array(
+				    'Content-Type: application/json',                                                                                
+				    'Content-Length: ' . strlen($json)
+			));
+			*/
 			$context  = stream_context_create($options);
 			$response = file_get_contents($url, false, $context);
+//			$response = curl_exec($url);
+/*			if (curl_error($url)) {
+			    Mage::log("got error", null, "rebatebus.log");
+
+			    $result['success'] = false;
+			    $result['error'] = true;
+			    $result['error_messages'] = $this->__('Error contacting utility incentive server - please remove the incentive, contact customer support, or try again later. Error: ' . curl_error($url));
+			    $this->_prepareDataJSON($result);
+			    curl_close($url);
+			    return;
+	
+			}
+*/
 			try {
 				$jsondata = json_decode($response, true);
 					
@@ -74,6 +97,7 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 				    $result['error_messages'] = $this->__('Error processing your utility incentive: ' . $e->getMessage());
 	
 			}
+//			curl_close($url);
 		}
 		parent::saveOrderAction();
 

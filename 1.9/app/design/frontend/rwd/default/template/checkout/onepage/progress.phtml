@@ -53,6 +53,8 @@
                 <?php echo $this->getChildHtml('payment.progress') ?>
             </div>
             <?php endif; ?>
+
+    	    <?php echo $this->getLayout()->createBlock('rebatebus/cart')->setTemplate('bus/checkout-rebates.phtml')->toHtml(); ?>
         </dl>
     </div>
 </div>

@@ -80,7 +80,5 @@ class Bus_Rebate_Model_Order_Invoice_Rebates extends Mage_Sales_Model_Order_Invo
 
 	$invoice->setGrandTotal($invoice->getGrandTotal() - $totalRebateAmount);
 	$invoice->setBaseGrandTotal($invoice->getBaseGrandTotal() - $totalRebateAmount);
-	Mage::log("added rebate bus incentive: " . $totalRebateAmount, null, "rebatebus.log");
-	
     }
 }

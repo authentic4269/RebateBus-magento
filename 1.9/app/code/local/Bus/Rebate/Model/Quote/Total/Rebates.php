@@ -59,7 +59,7 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
 				    $qty = $item->getQty();
 			    }
 			    if ($rebate->getCap()) {
-				if ($item->getParentItemId()) {
+				if ($item->getParentItemId() && $item->getParentItem()->getProduct()->getStockItem()->getProductTypeId() == 'configurable') {
 					if (($item->getParentItem()->getPrice() * ($rebate->getCap() / 100.0)) < $rebate->getAmount()) {
 					    $rebateAmount = $item->getParentItem()->getPrice() * ($rebate->getCap() / 100.0) * $qty;	
 					}

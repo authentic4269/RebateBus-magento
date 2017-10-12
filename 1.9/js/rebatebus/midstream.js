@@ -26,7 +26,7 @@ function doRebateApp(products, UID, PUB_API_KEY) {
 		"apikey": PUB_API_KEY,
 		"products": [products],
 		"verified": function(data) {
-			var postAction = "/magento_one/index.php/checkout/cart/rebatesPost";
+			var postAction = "/index.php/checkout/cart/rebatesPost";
 			var finished = data.length;
 			for (var i = 0; i < data.length; i++)
 			{

@@ -16,7 +16,7 @@
  */
 
 var UID = YOUR_UID;
-var PUB_API_KEY = "YOUR_API_KEY";
+var PUB_API_KEY = "YOUR_PUB_API_KEY";
 var initial_price = 15.99;
 var server = "https://www.rebatebus.com/"
 var products = [];
@@ -26,57 +26,37 @@ var applyProducts = [];
  * We've found a rebate that applies to productid in the program we're localizing to - update the DOM to reflect the discount
  */
 function updateRebatePriceQuotes(productid, incentive) {
-	var amount = parseFloat(incentive.rebateAmount); // widget delivers rebateAmount in a string
-	var pric = jQuery("#" + productid + " .pric1");
-	var i;
+	var target = jQuery("#" + productid +"-rebate-target");
 	var imgdiv = document.createElement("div");
-	imgdiv.style['display'] = 'inline';
+	var programimg = document.createElement("img");
+	var desc = document.createElement("p");
+	var captxt = "";
+	var desctxt;
+	if (incentive.cap) {
+		captxt = " or up to " + incentive.cap + "% of purchase price";
+	}	
+		
 	if (incentive.useutilitylogos) {
-		pric.text("");
-		pric.append("<del>$" + incentive.msrp.toFixed(2) + "</del>");
-		jQuery("#" + productid + " .pric2").text("$" + (incentive.msrp - amount).toFixed(2));
-		for (i = 0; i < incentive.utilities.length; i++) {
-			var programimg = document.createElement("img");
-			programimg.src = server + "assets/utilityimages/" + incentive.program + "/" + incentive.utilities[i] + ".png";
-			jQuery("#" + productid + " .disc").text("$" + incentive.rebateAmount + " rebate from " + incentive.utilityname);
-			programimg.style['max-width'] = (9 - Math.min(6, incentive.utilities.length)) + "em";
-			programimg.style['max-height'] = '4em';
-			programimg.style['display'] = 'inline';
-	//		programimg.style['margin'] = "0 auto";
-			programimg.className = productid + "img";
-	//		jQuery("#" + productid).append(programimg);
-			imgdiv.append(programimg);
-		}
-		jQuery("#" + productid).append(imgdiv);
+		programimg.src = server + "assets/utilityimages/" + incentive.program + "/" + incentive.utilities[i] + ".png";
+		desctxt = "$" + incentive.rebateAmount + captxt + " rebate from " + incentive.utilityname + " available for qualified customers";
+		programimg.style['max-width'] = (14 - Math.min(6, incentive.utilities.length)) + "em";
 	}
 	else {
-		var programimg = document.createElement("img");
-		jQuery("#" + productid + " .disc").text("$" + incentive.rebateAmount + " rebate from " + incentive.program);
 		programimg.src = server + "assets/programimages/" + incentive.program + ".png";
-		programimg.style['max-width'] = "11em";
-		programimg.style['margin'] = "0 auto";
-	//	programimg.setAttribute("id", productid + "img");
-		programimg.className = productid + "img";
-		pric.text("");
-		pric.append("<del>$" + incentive.msrp.toFixed(2) + "</del>");
-		jQuery("#" + productid + " .pric2").text("$" + (incentive.msrp - amount).toFixed(2));
-		imgdiv.append(programimg);
-		jQuery("#" + productid).append(imgdiv);
+		desctxt = "$" + incentive.rebateAmount + captxt + " rebate from " + incentive.program + " available for qualified customers";
+		programimg.style['max-width'] = "14em";
 	}
+	programimg.style['max-height'] = '8em';
+	programimg.style['display'] = 'inline';
+	desc.append(document.createTextNode(desctxt));
+	imgdiv.append(programimg);
+	target.append(imgdiv);
+	target.append(desc);
 }
 
 function clearRebatePriceQuotes() {
-	var i;
-	for (i = 0; i < products.length; i++) {
-		var pric2 = jQuery("#" + products[i] + " .pric2");
-		var pric = jQuery("#" + products[i] + " .pric1");
-		var disc = jQuery("#" + products[i] + " .disc");
-		if (jQuery("." + products[i] + "img"))
-			jQuery("." + products[i] + "img").remove();
-		if (pric.text().length)
-			pric2.text(pric.text());
-		disc.text("");
-		pric.text("");
+	for (var i = 0; i < products.length; i++) {
+		jQuery("#" + products[i] + "-rebate-target").empty();
 	}
 }
 /*
@@ -101,22 +81,21 @@ function updateConfigQuotes(productid, incentive) {
 				var programimg = document.createElement("img");
 				programimg.src = server + "assets/utilityimages/" + incentive.program + "/" + incentive.utilities[i] + ".png";
 				programimg.style['max-width'] = (9 - Math.min(6, incentive.utilities.length)) + "em";
-				programimg.style['max-height'] = '4em';
+				programimg.style['max-height'] = '8em';
 				programimg.style['display'] = 'inline';
 				imgdiv.append(programimg);
 			}
 		}
 		else {
 			var programimg = document.createElement("img");
-			programimg.src = server + "assets/programimages/" + incentive.program + ".png";
 			programimg.style['max-width'] = "11em";
 			programimg.style['margin'] = "0 auto";
 			imgdiv.append(programimg);
 		}
 		if (incentive.useincentivename)
-			desc.appendChild(document.createTextNode("Incentives Available From "));
+			desc.appendChild(document.createTextNode("Incentives Available From " + incentive.utilities[0]));
 		else
-			desc.appendChild(document.createTextNode("Rebates Available From "));
+			desc.appendChild(document.createTextNode("Rebates Available From " + incentive.program));
 		rebatewrapper.append(desc);
 		rebatewrapper.append(imgdiv);
 		var eligibleTxt = document.createElement("p");
@@ -173,16 +152,22 @@ window.onload = function() {
 	var clearFn = clearRebatePriceQuotes;
 	var showdownstream = 1;
 	if (jQuery(".product-cart-info").length) {
-		// if they've already gotten an incentive there's no need
 		if (!document.getElementById("rebate-remove-submit")) {
+		// if there is no remove button, we can set up the application
 			updateFn = updateRebateApplySection;
 			clearFn = clearRebateApplySection;
 			jQuery(".product-cart-sku").each(function(i) {
-				products.push(this.textContent.replace(/\D/g, ''));
+				// bundled products deliver skus in a hyphen-delimited format
+
+				var bundleSkus = this.textContent.split('-');
+				for (var p = 0; p < bundleSkus.length; p++) {
+					products.push(bundleSkus[p].replace(/\D/g, ''));
+				}
 			});
 		} else {
+		// if they've already gotten an incentive, load the 'remove' button.
 			jQuery("#rebate-remove-submit").click(function() {
-				jQuery.post("/magento_one/index.php/checkout/cart/rebatesPost", {remove: 1}, function(response) {
+				jQuery.post("/index.php/checkout/cart/rebatesPost", {remove: 1}, function(response) {
 					location.reload();
 				});
 			});
@@ -195,17 +180,15 @@ window.onload = function() {
 			products.push(this.getAttribute('id').replace("configproduct", ""));
 		});
 	}
-	else if (jQuery(".item").length) {
-		jQuery(".item .ref").each(function(i) {
-			products.push(this.getAttribute('id'));
+	else if (jQuery(".rebate-target").length) {
+		jQuery(".rebate-target").each(function(i) {
+			products.push(this.getAttribute('id').replace("-rebate-target", ""));
 		});
 	} 
 	else if (jQuery(".price-box").length) {
-
 		jQuery(".price-box").each(function(i) {
 			products.push(this.getAttribute('id'));
 		});
-
 	} else {
 		return;
 	}

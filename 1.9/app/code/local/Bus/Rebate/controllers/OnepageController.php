@@ -21,7 +21,7 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 		$price = 0;
                 foreach (Mage::getSingleton('checkout/session')->getQuote()->getAllItems() as $item) {
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
-			if ($item->getProductType() == 'simple') {
+			if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 				if ($rebate->getId()) {
 	//				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => ($item->getPrice() - $rebate->getAmount()));
 					if ($item->getParentProductId() && $item->getParentItem()->getProduct()->getStockItem()->getProductTypeId() == 'configurable') {	

@@ -19,7 +19,7 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Creditmemo_Totals extends Mage_Admi
         }
  
         foreach ($items as $item) {
-		if ($item->getProductType() == 'simple') {
+		if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
 			if ($rebate->getId()) {
 			    $rebateAmount = 0;

@@ -45,7 +45,7 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
         }
  
         foreach ($items as $item) {
-		if ($item->getProductType() == "simple") {
+		if ($item->getProductType() == "simple" || $item->getProductType() == 'grouped') {
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
 			if ($rebate->getId()) {
 			    $rebateAmount = 0;

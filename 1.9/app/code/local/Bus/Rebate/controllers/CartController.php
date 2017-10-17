@@ -11,7 +11,7 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 		$quote = Mage::getSingleton('checkout/session')->getQuote();
 		$cartItems = $quote->getAllItems();
 		foreach ($cartItems as $item) {
-			if ($item->getProductType() == 'simple') {
+			if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 				$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
 				if ($rebate) {
 					$this->_getSession()->addSuccess(
@@ -38,7 +38,8 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 		}
 		Mage::log("looking for target " . $productId, null, "rebatebus.log");
 		foreach (Mage::getModel('checkout/cart')->getQuote()->getAllItems() as $item) {
-			if ($item->getProductType() == 'simple' && $item->getSku() == $productId) {
+			Mage::log("checking item " . $item->getSku() . ", " . $item->getProductType(), null, "rebatebus.log");
+			if (($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') && $item->getSku() == $productId) {
 				Mage::log("rebate applied " . $item->getSku(), null, "rebatebus.log");
 				$model = Mage::getModel('rebate/rebate');
 //				if ($item->getParentItemId() && $item->getParentItem()->getProduct()->getStockItem()->getProductTypeId() == 'configurable') {

@@ -30,7 +30,7 @@ class Bus_Rebate_Block_Cart extends Mage_Core_Block_Template
 
     public function hasRebates() {
 	foreach (Mage::getModel('checkout/cart')->getQuote()->getAllItems() as $item) {
-		if ($item->getProductType() == 'simple') {
+		if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 		 	$rebate = Mage::getModel('rebate/rebate')->load($item->getId(),'item_id');
 			if ($rebate->getId()) {
 				return true;
@@ -42,7 +42,7 @@ class Bus_Rebate_Block_Cart extends Mage_Core_Block_Template
 	
     public function getRebateImage() {
 	foreach (Mage::getModel('checkout/cart')->getQuote()->getAllItems() as $item) {
-		if ($item->getProductType() == 'simple') {
+		if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 		 	$rebate = Mage::getModel('rebate/rebate')->load($item->getId(),'item_id');
 			if ($rebate) {
 				return "https://www.rebatebus.com/assets/programs/" . $rebate->getProgram() . ".png";
@@ -56,7 +56,7 @@ class Bus_Rebate_Block_Cart extends Mage_Core_Block_Template
     public function getRebateTexts() {
 	$text = "<table style='border-bottom: 1px solid lightgray; margin-bottom: 1em;'>";
 	foreach (Mage::getModel('checkout/cart')->getQuote()->getAllItems() as $item) {
-		if ($item->getProductType() == 'simple') {
+		if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 			$rebate = Mage::getModel('rebate/rebate')->load($item->getId(),'item_id');
 			if ($rebate->getId()) {
 				$amount = min($rebate->getMaxqty(), $item->getQty()) * $rebate->getAmount();

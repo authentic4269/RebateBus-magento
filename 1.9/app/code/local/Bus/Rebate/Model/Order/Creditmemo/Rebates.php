@@ -35,14 +35,13 @@ class Bus_Rebate_Model_Order_Creditmemo_Rebates extends Mage_Sales_Model_Order_C
 	$baseTotalRebateAmount = 0;
 	$subtotalWithDiscount = 0;
 	$baseSubtotalWithDiscount = 0;
-	$order = $memo->getOrder(); 
-        $items = $order->getAllVisibleItems();
-        if (!count($items)) {
+        if (!count($memo->getAllItems())) {
             return $this; //this makes only address type shipping to come through
         }
  
-        foreach ($items as $item) {
-	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
+        foreach ($memo->getAllItems() as $item) {
+            if (!$item->getOrderItem()->getHasChildren()){
+	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getOrderItem()->getQuoteItemId(), 'item_id');
 		$rebateAmount = 0;
 		if ($rebate->getId()) {
 		    if ($rebate->getMaxqty() < $item->getQtyOrdered()) {
@@ -60,21 +59,16 @@ class Bus_Rebate_Model_Order_Creditmemo_Rebates extends Mage_Sales_Model_Order_C
                     $subtotalWithDiscount+=$item->getRowTotalWithDiscount();
                     $baseSubtotalWithDiscount+=$item->getBaseRowTotalWithDiscount();
 		} 
+	    }
 	}
 /*
 	// TODO add similar invoice rebate amounts 
 	$address->setRebatesAmount($totalRebateAmount);
 	$address->setBaseRebatesAmount($baseTotalRebateAmount);
 */
-	$order->setDiscountInvoiced(
-		$order->getDiscountInvoiced() + $totalRebateAmount
-	);
-	$order->setBaseDiscountInvoiced(
-		$order->getBaseDiscountInvoiced() + $totalRebateAmount
-	);
 
-	$memo->setGrandTotal($order->getGrandTotal() - $totalRebateAmount);
-	$memo->setBaseGrandTotal($order->getBaseGrandTotal() - $totalRebateAmount);
+	$memo->setGrandTotal($memo->getGrandTotal() - $totalRebateAmount);
+	$memo->setBaseGrandTotal($memo->getBaseGrandTotal() - $totalRebateAmount);
 
     }
 

@@ -14,14 +14,14 @@ class Bus_Rebate_Block_Sales_Order_Invoice_Totals extends Mage_Sales_Block_Order
 /*	$order = $this->getInvoice()->getAllItems();*/
         $amount = 0;
 /* 	$items = $order->getAllVisibleItems();*/
- 	$items = $this->getInvoice->getAllVisibleItems();
+ 	$items = $this->_invoice->getAllItems();
 	$program = "";
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through
         }
  
         foreach ($items as $item) {
-	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
+	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getOrderItem()->getQuoteItemId(), 'item_id');
 		if ($rebate->getId()) {
 		    $rebateAmount = 0;
 		    $program = $rebate->getProgram();

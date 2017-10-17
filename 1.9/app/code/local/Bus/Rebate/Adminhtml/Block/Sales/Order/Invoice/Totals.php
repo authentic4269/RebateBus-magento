@@ -10,16 +10,17 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Invoice_Totals extends Mage_Adminht
     protected function _initTotals()
     {
         parent::_initTotals();
-	$order = $this->getInvoice()->getOrder();
+	$invoice = $this->_invoice;
         $amount = 0;
- 	$items = $order->getAllItems();
+ 	$items = $invoice->getAllItems();
 	$program = "";
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through
         }
  
-        foreach ($items as $item) {
-		if ($item->getProductType() == 'simple') {
+        foreach ($items as $invoice_item) {
+		$item = $invoice_item->getOrderItem();
+		if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
 			if ($rebate->getId()) {
 			    $rebateAmount = 0;

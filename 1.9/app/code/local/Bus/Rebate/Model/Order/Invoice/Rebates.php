@@ -35,15 +35,17 @@ class Bus_Rebate_Model_Order_Invoice_Rebates extends Mage_Sales_Model_Order_Invo
 	$baseTotalRebateAmount = 0;
 	$subtotalWithDiscount = 0;
 	$baseSubtotalWithDiscount = 0;
-	$order = $invoice->getOrder(); 
-        $items = $order->getAllItems();
+//	$order = $invoice->getOrder(); 
+ //       $items = $order->getAllItems();
+	$items = $invoice->getAllItems();
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through
         }
 	Mage::log("collecting for invoice", null, "rebatebus.log");
  
-        foreach ($items as $item) {
-		if ($item->getProductType() == 'simple') {
+        foreach ($items as $invoice_item) {
+		$item = $invoice_item->getOrderItem();
+            	if (!$item->getHasChildren()){
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
 			$rebateAmount = 0;
 			if ($rebate->getId()) {
@@ -62,7 +64,6 @@ class Bus_Rebate_Model_Order_Invoice_Rebates extends Mage_Sales_Model_Order_Invo
 
 			    $subtotalWithDiscount+=$item->getRowTotalWithDiscount();
 			    $baseSubtotalWithDiscount+=$item->getBaseRowTotalWithDiscount();
-			    $order->addStatusHistoryComment('Approved RebateBus Incentive Amount: ' . $rebateAmount . ", Product: " . $item->getName() . ", Verification Code: " . $rebate->getVerification() . ", Program: " . $rebate->getProgram());
 			} 
 		}
 	}
@@ -71,12 +72,14 @@ class Bus_Rebate_Model_Order_Invoice_Rebates extends Mage_Sales_Model_Order_Invo
 	$address->setRebatesAmount($totalRebateAmount);
 	$address->setBaseRebatesAmount($baseTotalRebateAmount);
 */
+/*
 	$order->setDiscountInvoiced(
 		$order->getDiscountInvoiced() + $totalRebateAmount
 	);
 	$order->setBaseDiscountInvoiced(
 		$order->getBaseDiscountInvoiced() + $totalRebateAmount
 	);
+*/
 
 	$invoice->setGrandTotal($invoice->getGrandTotal() - $totalRebateAmount);
 	$invoice->setBaseGrandTotal($invoice->getBaseGrandTotal() - $totalRebateAmount);

@@ -13,7 +13,6 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Creditmemo_Totals extends Mage_Sale
         parent::_initTotals();
 /*	$order = $this->getCreditmemo()->getOrder();*/
         $amount = 0;
-/* 	$items = $order->getAllVisibleItems();*/
 	$items = $this->getCreditmemo->getAllItems();
 	$program = "";
         if (!count($items)) {

@@ -8,8 +8,8 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
     public function saveOrderAction()
     {
 	// BEGIN Rebate Confirm Section
-		$apikey = "YOUR_APIKEY";
-	        $uid = YOUR_UID;
+		$apikey = "Zm0S2R0bFxOPwqib";
+	        $uid = 43;
 	        $url = 'https://www.rebatebus.com/api/applymidstream';
 
                 $rebateitems = array();

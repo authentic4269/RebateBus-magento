@@ -20,7 +20,7 @@
  *
  * @category    design
  * @package     rwd_default
- * @copyright   Copyright (c) 2006-2016 X.commerce, Inc. and affiliates (http://www.magento.com)
+ * @copyright   Copyright (c) 2006-2017 X.commerce, Inc. and affiliates (http://www.magento.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 ?>
@@ -38,6 +38,7 @@
                 <div class="product-details">
                     <div class="f-fix">
                         <h3 class="product-name"><a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->stripTags($_product->getName(), null, true) ?>)"><?php echo $this->helper('catalog/output')->productAttribute($_product, $_product->getName() , 'name') ?></a></h3>
+			<div id="<?php echo $_product->getSku() ?>-rebate-target" class="rebate-target"></div>
                         <?php /* Removing this functionality from RWD
                         <?php echo $this->getReviewsSummaryHtml($_product, 'short') ?>
                         <?php echo $this->getPriceHtml($_product, true, '-widget-new-list') ?>

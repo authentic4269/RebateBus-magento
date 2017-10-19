@@ -29,7 +29,6 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
 {
     public function collect(Mage_Sales_Model_Quote_Address $address)
     {
-	Mage::log("collecting", null, "rebatebus.log");
         parent::collect($address);
  
         $this->_setAmount(0);
@@ -50,26 +49,28 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
 			if ($rebate->getId()) {
 			    $rebateAmount = 0;
 			    $qty = 0;
-			    if ($rebate->getMaxqty() < $item->getQty()) {
-				    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
+			    $price = 0;
+				
+			    if ($item->getParentItemId() && $item->getParentItem()->getProduct()->getStockItem()->getProductTypeId() == 'configurable') {
+				$qty = $item->getParentItem()->getQty();
+				$price = $item->getParentItem()->getPrice();
+			    } else {
+				$qty = $item->getQty();
+				$price = $item->getPrice();
+			    }
+
+			    if ($rebate->getMaxqty() < $qty) {
 				    $qty = $rebate->getMaxqty();
 			    }
-			    else {
-				    $rebateAmount = $rebate->getAmount() * $item->getQty();
-				    $qty = $item->getQty();
+				
+			    if (($price * ($rebate->getCap() / 100.0)) < $rebate->getAmount()) {
+			        $rebateAmount = ($rebate->getCap() / 100.0) * $qty;	
 			    }
-			    if ($rebate->getCap()) {
-				if ($item->getParentItemId() && $item->getParentItem()->getProduct()->getStockItem()->getProductTypeId() == 'configurable') {
-					if (($item->getParentItem()->getPrice() * ($rebate->getCap() / 100.0)) < $rebate->getAmount()) {
-					    $rebateAmount = $item->getParentItem()->getPrice() * ($rebate->getCap() / 100.0) * $qty;	
-					}
+			    else {
+			        $rebateAmount = $rebate->getAmount() * $qty;	
+			    }
+			   
 
-				} else {
-					if (($item->getPrice() * ($rebate->getCap() / 100.0)) < $rebate->getAmount()) {
-					    $rebateAmount = $item->getPrice() * ($rebate->getCap() / 100.0) * $qty;	
-					}
-				}
-			    }	
 			    $totalRebateAmount += $rebateAmount;
 			    $baseTotalRebateAmount += $rebateAmount;
 
@@ -91,7 +92,7 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
 	if ($address->getRebatesAmount() > 0) {
 		$address->addTotal(array(
 			'code'=>"rebates",
-			'title'=>"Incentives",
+			'title'=>"Energy Efficiency Rebate",
 			'value'=>($address->getRebatesAmount() * -1.0)
 		));
 	}

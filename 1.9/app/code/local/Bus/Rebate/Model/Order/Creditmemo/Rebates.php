@@ -27,6 +27,17 @@
 
 class Bus_Rebate_Model_Order_Creditmemo_Rebates extends Mage_Sales_Model_Order_Creditmemo_Total_Abstract
 {
+    protected function getParentMemoItem($memo, $sku) {
+	foreach($memo->getAllItems() as $memo_item) {
+		if ($memo_item->getOrderItem()->getProductType() == 'configurable' && $memo_item->getSku() == $sku) {
+			return $memo_item;	
+		}
+	}
+	return NULL;
+    }
+
+
+
     public function collect(Mage_Sales_Model_Order_Creditmemo $memo)
     {
         parent::collect($memo);
@@ -39,33 +50,36 @@ class Bus_Rebate_Model_Order_Creditmemo_Rebates extends Mage_Sales_Model_Order_C
             return $this; //this makes only address type shipping to come through
         }
  
-        foreach ($memo->getAllItems() as $item) {
-            if (!$item->getOrderItem()->getHasChildren()){
-	 	$rebate= Mage::getModel('rebate/rebate')->load($item->getOrderItem()->getQuoteItemId(), 'item_id');
-		$rebateAmount = 0;
-		if ($rebate->getId()) {
-		    if ($rebate->getMaxqty() < $item->getQtyOrdered()) {
-			    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
-		    }
-		    else {
-			    $rebateAmount = $rebate->getAmount() * $item->getQtyOrdered();
-		    }
-		    $totalRebateAmount += $rebateAmount;
-		    $baseTotalRebateAmount += $rebateAmount;
-
-//		    $item->setRowTotalWithDiscount($item->getRowTotalWithDiscount() - $rebateAmount);
-//		    $item->setBaseRowTotalWithDiscount($item->getBaseRowTotalWithDiscount() - $rebateAmount);
-
-                    $subtotalWithDiscount+=$item->getRowTotalWithDiscount();
-                    $baseSubtotalWithDiscount+=$item->getBaseRowTotalWithDiscount();
-		} 
-	    }
+        foreach ($memo->getAllItems() as $memo_item) {
+		$order_item = $memo_item->getOrderItem();	
+		if ($order_item->getProductType() == 'simple' || $order_item->getProductType() == 'grouped') {
+			$rebate= Mage::getModel('rebate/rebate')->load($order_item->getQuoteItemId(), 'item_id');
+			if ($rebate->getId()) {
+			    $rebateAmount = 0;
+			    $memoqty = 0;
+			    $program = $rebate->getProgram();
+			    $memoqty = $memo_item->getQty();
+			    $old_memoqty = $memo_item->getQtyInvoiced();;
+			    if ($order_item->getParentItemId() && $order_item->getParentItem()->getProductType() == 'configurable') {
+				$parentitem = $this->getParentMemoItem($memo, $memo_item->getSku());
+				if ($parentitem == NULL) {
+					// This should never happen
+					$memoqty = 0;
+					$old_memoqty = 0;
+				} else {
+					$memoqty = $parentitem->getQty();
+					$old_memoqty = $parentitem->getQtyInvoiced();
+				}
+			    }
+			    $limqty = max($rebate->getMaxqty() - $old_memoqty, 0);
+			    $rebateqty = min($limqty, $memoqty);
+			    
+			    $rebateAmount = $rebate->getAmount()*$rebateqty;
+			    $totalRebateAmount += $rebateAmount;
+			} 
+		}
+	
 	}
-/*
-	// TODO add similar invoice rebate amounts 
-	$address->setRebatesAmount($totalRebateAmount);
-	$address->setBaseRebatesAmount($baseTotalRebateAmount);
-*/
 
 	$memo->setGrandTotal($memo->getGrandTotal() - $totalRebateAmount);
 	$memo->setBaseGrandTotal($memo->getBaseGrandTotal() - $totalRebateAmount);

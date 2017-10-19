@@ -2,6 +2,15 @@
 
 class Bus_Rebate_Adminhtml_Block_Sales_Order_Invoice_Totals extends Mage_Adminhtml_Block_Sales_Order_Invoice_Totals
 {
+    protected function getParentInvoiceItem($invoice, $sku) {
+	foreach($invoice->getAllItems() as $invoice_item) {
+		if ($invoice_item->getOrderItem()->getProductType() == 'configurable' && $invoice_item->getSku() == $sku) {
+			return $invoice_item;	
+		}
+	}
+	return 0;
+    }
+
     /**
      * Initialize order totals array
      *
@@ -10,7 +19,8 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Invoice_Totals extends Mage_Adminht
     protected function _initTotals()
     {
         parent::_initTotals();
-	$invoice = $this->_invoice;
+//	$invoice = $this->_invoice;
+	$invoice = $this->getInvoice();
         $amount = 0;
  	$items = $invoice->getAllItems();
 	$program = "";
@@ -24,16 +34,26 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Invoice_Totals extends Mage_Adminht
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
 			if ($rebate->getId()) {
 			    $rebateAmount = 0;
+			    $invoicedqty = $invoice_item->getQty();
+			    $old_invoicedqty = $invoice_item->getQtyInvoiced();
+			    if ($item->getParentItemId() && $item->getParentItem()->getProductType() == 'configurable') {
+				$parentitem = $this->getParentInvoiceItem($invoice, $item->getSku());
+				if ($parentitem == NULL) {
+					$invoicedqty = 0;
+					$old_invoicedqty = 0;
+				} else {
+					$invoicedqty = $parentitem->getQty();
+					$old_invoicedqty = $parentitem->getQtyInvoiced();
+				}
+			    }
+			    $limqty = max($rebate->getMaxqty() - $item->getQtyInvoiced(), 0);
+			    $rebateqty = min($limqty, $invoicedqty);
+			    if ($rebateqty > 0)
+				$rebateAmount = $rebate->getAmount() * $rebateqty;
 			    $program = $rebate->getProgram();
-			    if ($rebate->getMaxqty() < $item->getQtyOrdered()) {
-				    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
-			    }
-			    else {
-				    $rebateAmount = $rebate->getAmount() * $item->getQtyOrdered();
-			    }
 			    $amount += $rebateAmount;
 			} 
-		}
+		} 
 	}
 
         if ($amount) {
@@ -41,7 +61,7 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Invoice_Totals extends Mage_Adminht
                 'code'      => 'bus_rebate',
                 'value'     => $amount,
                 'base_value'=> $amount,
-                'label'     => 'Rebate Bus Incentive from ' . $program,
+                'label'     => 'Energy Efficiency Rebate from ' . $program,
             ), array('shipping', 'tax')));
         }
  

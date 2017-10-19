@@ -19,17 +19,23 @@ class Bus_Rebate_Adminhtml_Block_Sales_Order_Totals extends Mage_Adminhtml_Block
         }
  
         foreach ($items as $item) {
-		if ($item->getProductType() == 'simple') {	
-			$quoteItem = $item->getQuoteItem();
+		if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
 			if ($rebate->getId()) {
-			    $rebateAmount = 0;
+			    $qty = 0;	
 			    $program = $rebate->getProgram();
-			    if ($rebate->getMaxqty() < $item->getQtyOrdered()) {
+			    if ($item->getParentItemId() && $item->getParentItem()->getProductType() == 'configurable') {
+				$qty = $item->getParentItem()->getQtyOrdered();
+			    } else {
+				$qty = $item->getQtyOrdered();
+			    }
+			    Mage::log("got qty " . $qty . ", sku: " . $item->getSku(), null, "rebatebus.log");
+			    $rebateAmount = 0;
+			    if ($rebate->getMaxqty() < $qty) {
 				    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
 			    }
 			    else {
-				    $rebateAmount = $rebate->getAmount() * $item->getQtyOrdered();
+				    $rebateAmount = $rebate->getAmount() * $qty;
 			    }
 			    $amount += $rebateAmount;
 			} 

@@ -36,7 +36,6 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 	            $this->_goBack();
 		    return;
 		}
-		Mage::log("looking for target " . $productId, null, "rebatebus.log");
 		foreach (Mage::getModel('checkout/cart')->getQuote()->getAllItems() as $item) {
 			Mage::log("checking item " . $item->getSku() . ", " . $item->getProductType(), null, "rebatebus.log");
 			if (($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') && $item->getSku() == $productId) {

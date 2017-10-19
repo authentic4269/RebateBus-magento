@@ -27,6 +27,16 @@
 
 class Bus_Rebate_Model_Order_Invoice_Rebates extends Mage_Sales_Model_Order_Invoice_Total_Abstract
 {
+    protected function getParentInvoiceItem($invoice, $sku) {
+	foreach($invoice->getAllItems() as $invoice_item) {
+		if ($invoice_item->getOrderItem()->getProductType() == 'configurable' && $invoice_item->getSku() == $sku) {
+			return $invoice_item;
+		}
+	}
+	return NULL;
+    }
+
+
     public function collect(Mage_Sales_Model_Order_Invoice $invoice)
     {
         parent::collect($invoice);
@@ -41,31 +51,49 @@ class Bus_Rebate_Model_Order_Invoice_Rebates extends Mage_Sales_Model_Order_Invo
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through
         }
-	Mage::log("collecting for invoice", null, "rebatebus.log");
  
+        Mage::log("in order invoice total model: ", null, "rebatebus.log");
         foreach ($items as $invoice_item) {
 		$item = $invoice_item->getOrderItem();
-            	if (!$item->getHasChildren()){
+		if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
+	
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
 			$rebateAmount = 0;
 			if ($rebate->getId()) {
-			    Mage::log("collecting for item " . $item->getQuoteItemId(), null, "rebatebus.log");
-			    if ($rebate->getMaxqty() < $item->getQtyOrdered()) {
-				    $rebateAmount = $rebate->getAmount()*$rebate->getMaxqty();
+			    $invoicedqty = $invoice_item->getQty();
+			    $old_invoicedqty = $invoice_item->getQtyInvoiced();
+			    if ($item->getParentItemId() && $item->getParentItem()->getProductType() == 'configurable') {
+			
+				$parentitem = $this->getParentInvoiceItem($invoice, $item->getSku());
+				if ($parentitem == NULL) {
+					$invoicedqty = $parentitem->getQty();
+					$old_invoicedqty = $parentitem->getQtyInvoiced();
+				}	
+				else {
+					$invoicedqty = $parentitem->getQty();
+					$old_invoicedqty = $parentitem->getQtyInvoiced();
+				}	
 			    }
-			    else {
-				    $rebateAmount = $rebate->getAmount() * $item->getQtyOrdered();
-			    }
+		
+			    $limqty = max($rebate->getMaxqty() - $old_invoicedqty, 0);
+			    $rebateqty = min($limqty, $invoicedqty); 
+
+//			    Mage::log("qty to invoice: " . $item->getQtyToInvoice(), null, "rebatebus.log");
+//			    Mage::log("qty invoiced: " . $item->getQtyInvoiced(), null, "rebatebus.log");
+//			    Mage::log("rebateqty: " . $item->getQtyInvoiced(), null, "rebatebus.log");
+			    if ($rebateqty > 0)
+				$rebateAmount = $rebate->getAmount() * $rebateqty;
+	
 			    $totalRebateAmount += $rebateAmount;
 			    $baseTotalRebateAmount += $rebateAmount;
 
-	//		    $item->setRowTotalWithDiscount($item->getRowTotalWithDiscount() - $rebateAmount);
-	//		    $item->setBaseRowTotalWithDiscount($item->getBaseRowTotalWithDiscount() - $rebateAmount);
+			    $invoice_item->setRowTotalWithDiscount($invoice_item->getRowTotalWithDiscount() - $rebateAmount);
+			    $invoice_item->setBaseRowTotalWithDiscount($invoice_item->getBaseRowTotalWithDiscount() - $rebateAmount);
 
 			    $subtotalWithDiscount+=$item->getRowTotalWithDiscount();
 			    $baseSubtotalWithDiscount+=$item->getBaseRowTotalWithDiscount();
 			} 
-		}
+		} 
 	}
 /*
 	// TODO add similar invoice rebate amounts 

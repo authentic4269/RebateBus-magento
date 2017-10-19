@@ -20,7 +20,7 @@
  *
  * @category    design
  * @package     rwd_default
- * @copyright   Copyright (c) 2006-2016 X.commerce, Inc. and affiliates (http://www.magento.com)
+ * @copyright   Copyright (c) 2006-2017 X.commerce, Inc. and affiliates (http://www.magento.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 ?>
@@ -155,8 +155,8 @@
     <div class="cart-forms">
         <?php /* Extensions placeholder */ ?>
         <?php echo $this->getChildHtml('checkout_cart_widget') ?>
-	<?php echo $this->getChildHtml('coupon') ?>
-    	<?php echo $this->getLayout()->createBlock('rebatebus/cart')->setTemplate('bus/rebates.phtml')->toHtml(); ?>
+        <?php echo $this->getChildHtml('coupon') ?>
+	<?php echo $this->getLayout()->createBlock('rebatebus/cart')->setTemplate('bus/rebates.phtml')->toHtml(); ?>
         <?php echo $this->getChildHtml('checkout.cart.extra') ?>
         <?php if (!$this->getIsVirtual()): echo $this->getChildHtml('shipping'); endif; ?>
     </div>

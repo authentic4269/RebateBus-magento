@@ -15,8 +15,8 @@
  * Mitch Vogel, 8/10/2017
  */
 
-var UID = YOUR_UID;
-var PUB_API_KEY = "YOUR_PUB_API_KEY";
+var UID = 43;
+var PUB_API_KEY = "VzYpNS9HAf5w76YC";
 var initial_price = 15.99;
 var server = "https://www.rebatebus.com/"
 var products = [];
@@ -151,7 +151,7 @@ window.onload = function() {
 	var updateFn = updateRebatePriceQuotes;
 	var clearFn = clearRebatePriceQuotes;
 	var showdownstream = 1;
-	if (jQuery(".product-cart-info").length) {
+	if (jQuery(".product-cart-info").length || jQuery("#checkout-progress-wrapper").length) {
 		if (!document.getElementById("rebate-remove-submit")) {
 		// if there is no remove button, we can set up the application
 			updateFn = updateRebateApplySection;

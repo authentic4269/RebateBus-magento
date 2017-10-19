@@ -59,7 +59,13 @@ class Bus_Rebate_Block_Cart extends Mage_Core_Block_Template
 		if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 			$rebate = Mage::getModel('rebate/rebate')->load($item->getId(),'item_id');
 			if ($rebate->getId()) {
-				$amount = min($rebate->getMaxqty(), $item->getQty()) * $rebate->getAmount();
+				$amount = 0;
+				if ($item->getParentItemId() && $item->getParentItem()->getProductType() == 'configurable') {
+					$amount = min($rebate->getMaxqty(), $item->getParentItem()->getQty()) * $rebate->getAmount();
+				}
+				else {
+					$amount = min($rebate->getMaxqty(), $item->getQty()) * $rebate->getAmount();
+				}
 				$text = $text . "<tr style='padding: 1em 0 1em 0'><td><strong>" . $item->getName() . ":</strong></td><td class='price a-right' style='padding-left: 2em;'>$" . number_format($amount, 2) . " Incentive</td></tr>";
 			}
 		}

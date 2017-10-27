@@ -51,8 +51,6 @@ class Bus_Rebate_Model_Order_Invoice_Rebates extends Mage_Sales_Model_Order_Invo
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through
         }
- 
-        Mage::log("in order invoice total model: ", null, "rebatebus.log");
         foreach ($items as $invoice_item) {
 		$item = $invoice_item->getOrderItem();
 		if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {

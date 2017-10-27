@@ -66,7 +66,7 @@ class Bus_Rebate_Block_Cart extends Mage_Core_Block_Template
 				else {
 					$amount = min($rebate->getMaxqty(), $item->getQty()) * $rebate->getAmount();
 				}
-				$text = $text . "<tr style='padding: 1em 0 1em 0'><td><strong>" . $item->getName() . ":</strong></td><td class='price a-right' style='padding-left: 2em;'>$" . number_format($amount, 2) . " Incentive</td></tr>";
+				$text = $text . "<tr style='padding: 1em 0 1em 0'><td><strong>" . $item->getName() . ":</strong></td><td class='price a-right' style='padding-left: 2em;'>$" . number_format($amount, 2) . " Rebate</td></tr>";
 			}
 		}
 	}

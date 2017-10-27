@@ -60,8 +60,8 @@ class Bus_Rebate_Block_Sales_Order_Invoice_Totals extends Mage_Sales_Block_Order
 */ 
             $this->addTotal(new Varien_Object(array(
                 'code'      => 'bus_rebate',
-                'value'     => $amount,
-                'base_value'=> $amount,
+                'value'     => -$amount,
+                'base_value'=> -$amount,
                 'label'     => 'Rebate Bus Incentive from ' . $program,
             )));
         }

@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<config>
-    <modules>
-        <Bus_Rebate>
-            <active>true</active>
-            <codePool>local</codePool>
-        </Bus_Rebate>
-    </modules>
-</config>

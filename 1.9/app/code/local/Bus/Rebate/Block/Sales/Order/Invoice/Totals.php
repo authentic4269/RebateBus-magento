@@ -23,7 +23,7 @@ class Bus_Rebate_Block_Sales_Order_Invoice_Totals extends Mage_Sales_Block_Order
 /*	$order = $this->getInvoice()->getAllItems();*/
         $amount = 0;
 // 	$items = $this->_invoice->getAllItems();
-	$items = $this->getInvoice();
+	$items = $this->getInvoice()->getAllItems();
 	$program = "";
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through

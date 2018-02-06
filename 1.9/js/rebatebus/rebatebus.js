@@ -9,14 +9,11 @@
  * 
  * Markup is customized based on whether we're on a single product page or catalog page (updateRebatePriceQuotes), or checkout page (updateRebateApplySection)
  *
- * Note that stealing this API key and UID won't do you much good - they're tied to the products in the inventory managed by user 43
- * Feel free to use this API key and UID with these products to develop and debug your own apps. 
- *
  * Mitch Vogel, 8/10/2017
  */
 
 var UID = YOUR_UID;
-var PUB_API_KEY = "YOUR_API_KEY";
+var PUB_API_KEY = "YOUR_PUB_API_KEY";
 var initial_price = 15.99;
 var server = "https://www.rebatebus.com/"
 var products = [];
@@ -166,6 +163,7 @@ window.onload = function() {
 			});
 		} else {
 		// if they've already gotten an incentive, load the 'remove' button.
+			jQuery("#discount-rebates-form").show();
 			jQuery("#rebate-remove-submit").click(function() {
 				jQuery.post("/index.php/checkout/cart/rebatesPost", {remove: 1}, function(response) {
 					location.reload();
@@ -198,6 +196,7 @@ window.onload = function() {
 		"productid_list": products,
 		"showdownstream": showdownstream,
 		"callback": updateFn,
+		"viewingtype": "commercial",
 		"clear": clearFn
 
 	});

@@ -116,7 +116,17 @@
             </totals>
         </pdf>
 	<events>
-<!--		<sales_order_invoice_save_after>
+		<catalog_product_new_action>
+			<observers>
+				<bus_rebate_model_observer>
+					<type>singleton</type>
+					<class>Bus_Rebate_Model_Observer</class>
+					<method>saveProduct</method>
+				</bus_rebate_model_observer>
+			</observers>
+		</catalog_product_new_action>
+<!--
+		<sales_order_invoice_save_after>
 			<observers>
 				<bus_rebate_model_observer>
 					<type>singleton</type>

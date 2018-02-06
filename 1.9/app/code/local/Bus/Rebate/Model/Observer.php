@@ -1,15 +1,22 @@
 <?php
 
 class Bus_Rebate_Model_Observer {
+	public function saveProduct($observer) {
+		$_product = $observer->getEvent()->getProduct();
+		Mage::log(get_class($observer->getEvent()));
+		Mage::log($observer->getEvent());
+	        Mage::log(get_class($_product), null, "rebatebus.log");
+	        Mage::log($_product->getName(), null, "rebatebus.log");
+	        Mage::log($_product->getSku(), null, "rebatebus.log");
+		
+	}
+
 	public function sendInvoiceEmail($observer) {
-	        Mage::log("in send invoice email observer", null, "rebatebus.log");
 		$template_id    =   'sales_email_invoice_template';
 		  $emailTemplate  =   Mage::getModel('core/email_template')->loadDefault($template_id);
 		  $storeId =   Mage::app()->getStore()->getStoreId();
 		  $invoice =   $observer->getEvent()->getInvoice();  
 		  $order   =   $observer->getEvent()->getInvoice()->getOrder();
-	          Mage::log("invoice id: " . $invoice->getId(), null, "rebatebus.log");
-	          Mage::log("order id: " . $order->getId(), null, "rebatebus.log");
 		if ($order->hasInvoices()) 
                 {
 			foreach ($order->getInvoiceCollection() as $inv) 
@@ -20,7 +27,6 @@ class Bus_Rebate_Model_Observer {
 			    $code = "";
 			    $first = 1;
 			    foreach ($inv->getAllItems() as $item) {
-	        		Mage::log("this item " . $item->getSku(), null, "rebatebus.log");
 				$rebate= Mage::getModel('rebate/rebate')->load($item->getOrderItem()->getQuoteItemId(), 'item_id');
 				if ($rebate->getId()) {
 					$hasRebates = true;
@@ -32,7 +38,6 @@ class Bus_Rebate_Model_Observer {
 					$code = $code . $rebate->getVerification();
 				}
 			    } if ($hasRebates) {
-	        		    Mage::log("got rebate", null, "rebatebus.log");
 				    $paymentBlock = Mage::helper('payment')->getInfoBlock($order->getPayment())->setIsSecureMode(true);
 				    $paymentBlockHtml = $paymentBlock->toHtml();
 

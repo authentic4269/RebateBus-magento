@@ -42,9 +42,18 @@ http://magento.rebatebus.com/js/rebatebus/midstream.js
 
     - Before testing the client, you'll need to get at least one product id added to your Rebate Bus.The product id must match up with what you've got client side - for example, the attached Javascript looks for the 'id' property of the 'item' CSS class.
 
-    - One easy way to accomplish this is to add a 'rebate-target' div wherever you want rebates to load. Just declare a div with 'class="rebate-target"', and 'id="rebate-target-<id>"'. Then, your client script can load in the rebate offers very simply just by looking for such divs, parsing out the <id> to initialize the SearchWidget.
+    - One easy way to accomplish this is to add a 'rebate-target' div wherever you want rebates to load. Just declare a div with 'class="rebate-target"', and 'id="rebate-target-<id>"'. Then, your client script can load in the rebate offers very simply just by looking for such divs, parsing out the <id> to initialize the SearchWidget. On 1.9.7, the following files are the key ones to modify:
 
-    - References to these files must be in your main page.xml (layout/page.xml). See below for an example:
+    app/design/frontend/your-layout-directory/default/template/catalog/product/view/type/grouped.phtml
+    app/design/frontend/your-layout-directory/default/template/catalog/product/view.phtml
+    app/design/frontend/your-layout-directory/default/template/catalog/product/widget/new/content/new_list.phtml
+
+    - If you wish to list rebate-eligible configurations for configurable products, refer to the following file of the repository:
+
+    1.9/app/design/frontend/base/default/template/catalog/product/view/options/wrapper.phtml:
+
+
+    - References to rebatebus.js, midstream.js, and the Rebate Bus widgets that they make use of must be in your main page.xml (layout/page.xml). See below for an example:
 
 
                 <!-- load the search widget from rebate bus-->

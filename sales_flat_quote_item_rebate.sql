@@ -36,6 +36,7 @@ CREATE TABLE `sales_flat_quote_item_rebate` (
   `program` varchar(64) NOT NULL,
   `amount` float NOT NULL,
   `busid` varchar(32) NOT NULL,
+  `invoiceitemname` varchar(255) NOT NULL,
   `cap` float NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

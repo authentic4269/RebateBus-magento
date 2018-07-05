@@ -28,6 +28,8 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 		$verification = (string) $this->getRequest()->getParam('verification');
 		$maxqty = (int) $this->getRequest()->getParam('maxqty');
 		$amount = (float) $this->getRequest()->getParam('amount');
+		$mincontribution = (float) $this->getRequest()->getParam('mincustomercontribution');
+		$invoiceitemname = (string) $this->getRequest()->getParam('invoiceitemname');
 		$program = (string) $this->getRequest()->getParam('program');
 		$busid = (string) $this->getRequest()->getParam('busid');
 		$cap = (float) $this->getRequest()->getParam('cap');
@@ -43,17 +45,21 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 				if ($item->getParentItemId() && $item->getParentItem()->getProductType() == 'configurable') {
 					if ($amount > $item->getParentItem()->getPrice() * ($cap / 100.0))
 						$amount = $item->getParentItem()->getPrice() * ($cap / 100.0);
+					if ($mincontribution && ($item->getParentItem()->getPrice() - $amount) < $mincontribution)
+						$amount = $item->getParentItem()->getPrice() - $mincontribution;
 				} 
 				else {
-					
 					if ($amount > $item->getPrice() * ($cap / 100.0))
 						$amount = $item->getPrice() * ($cap / 100.0);
+					if ($mincontribution && ($item->getPrice() - $amount) < $mincontribution)
+						$amount = $item->getParentItem()->getPrice() - $mincontribution;
 				}
 				$model->setAmount($amount);
 				$model->setVerification($verification);
 				$model->setMaxqty($maxqty);
 				$model->setProgram($program);
 				$model->setItemId($item->getId());	
+				$model->setInvoiceItemName($invoiceitemname);
 				$model->setBusid($busid);
 				$model->setCap($cap);
 				$model->save();

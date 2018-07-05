@@ -9,14 +9,36 @@
  * 
  * Markup is customized based on whether we're on a single product page or catalog page (updateRebatePriceQuotes), or checkout page (updateRebateApplySection)
  *
+ * Note that stealing this API key and UID won't do you much good - they're tied to the products in the inventory managed by user 43
+ * Feel free to use this API key and UID with these products to develop and debug your own apps. 
+ *
  * Mitch Vogel, 8/10/2017
  */
 
-var UID = YOUR_UID;
-var PUB_API_KEY = "YOUR_PUB_API_KEY";
-var server = "https://www.rebatebus.com/"
-var products = [];
-var applyProducts = [];
+var test = 0;
+var UID;
+var PUB_API_KEY;
+var server;
+var initial_price;
+var applyProducts;
+var first = 1;
+
+if (!test) {
+	UID = 444;
+	PUB_API_KEY = "YEuF3x8uMkkiCwtJ";
+	initial_price = 15.99;
+	server = "https://www.rebatebus.com/"
+	products = [];
+	applyProducts = [];
+}
+else {
+	UID = 1;
+	PUB_API_KEY = "1lY9PpbVN21cunLR";
+	initial_price = 15.99;
+	server = "http://maxlite.rebatebus.com:3001/"
+	products = [];
+	applyProducts = [];
+}
 
 /*
  * We've found a rebate that applies to productid in the program we're localizing to - update the DOM to reflect the discount
@@ -36,11 +58,13 @@ function updateRebatePriceQuotes(productid, incentive) {
 		programimg.src = server + "assets/utilityimages/" + incentive.program + "/" + incentive.utilities[i] + ".png";
 		desctxt = "$" + incentive.rebateAmount + captxt + " rebate from " + incentive.utilityname + " available for qualified customers";
 		programimg.style['max-width'] = (14 - Math.min(6, incentive.utilities.length)) + "em";
+		imgdiv.style['max-width'] = (14 - Math.min(6, incentive.utilities.length)) + "em";
 	}
 	else {
 		programimg.src = server + "assets/programimages/" + incentive.program + ".png";
 		desctxt = "$" + incentive.rebateAmount + captxt + " rebate from " + incentive.program + " available for qualified customers";
 		programimg.style['max-width'] = "14em";
+		imgdiv.style['max-width'] = '14em';
 	}
 	programimg.style['max-height'] = '8em';
 	programimg.style['display'] = 'inline';
@@ -51,9 +75,14 @@ function updateRebatePriceQuotes(productid, incentive) {
 }
 
 function clearRebatePriceQuotes() {
+	if (!first) 
+		location.reload();
+	else
+		first = 0;
 	for (var i = 0; i < products.length; i++) {
 		jQuery("#" + products[i] + "-rebate-target").empty();
 	}
+
 }
 /*
  * We've found a rebate that applies to productid in the program we're localizing to - update the DOM to reflect the discount
@@ -192,10 +221,11 @@ window.onload = function() {
 	SearchWidget.configure({
 		"uid": UID,
 		"apikey": PUB_API_KEY,
+		"server": server,
 		"productid_list": products,
 		"showdownstream": showdownstream,
 		"callback": updateFn,
-		"viewingtype": "commercial",
+		"viewingtype": "residential",
 		"clear": clearFn
 
 	});

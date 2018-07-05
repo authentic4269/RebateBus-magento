@@ -90,9 +90,18 @@ class Bus_Rebate_Model_Quote_Total_Rebates extends Mage_Sales_Model_Quote_Addres
     public function fetch(Mage_Sales_Model_Quote_Address $address)
     {
 	if ($address->getRebatesAmount() > 0) {
+		$invoiceitemname = "";
+        	$items = $this->_getAddressItems($address);
+        	foreach ($items as $item) {
+			$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
+			if ($rebate->getId()) {
+				$invoiceitemname = $rebate->getInvoiceItemName();
+				break;
+			}
+		}
 		$address->addTotal(array(
 			'code'=>"rebates",
-			'title'=>"Energy Efficiency Rebate",
+			'title'=>$invoiceitemname,
 			'value'=>($address->getRebatesAmount() * -1.0)
 		));
 	}

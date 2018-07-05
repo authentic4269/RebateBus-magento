@@ -25,16 +25,14 @@ class Bus_Rebate_Model_Order_Pdf_Total_Rebates extends Mage_Sales_Model_Order_Pd
         if (!count($items)) {
             return $this; //this makes only address type shipping to come through
         }
-	$program = "";
+	$invoiceitemname = "";
         foreach ($items as $item) {
-		Mage::log("item: " . $item->getSku(), null, "rebatebus.log");
-		Mage::log("product type: " . $item->getProductType(), null, "rebatebus.log");
 		if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 	
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getQuoteItemId(), 'item_id');
 			$rebateAmount = 0;
 			if ($rebate->getId()) {
-			    $program = $rebate->getProgram();
+			    $invoiceitemname = $rebate->getInvoiceItemName();
 			    $qty = $item->getQtyInvoiced();
 			    $old_invoicedqty = 0;
 			    $invoicedqty = $qty;
@@ -47,8 +45,6 @@ class Bus_Rebate_Model_Order_Pdf_Total_Rebates extends Mage_Sales_Model_Order_Pd
 		
 			    $limqty = max($rebate->getMaxqty() - $old_invoicedqty, 0);
 			    $rebateqty = min($limqty, $invoicedqty); 
-			    Mage::log("invoiced qty: " . $invoicedqty, null, "rebatebus.log");
-			    Mage::log("qty: " . $qty, null, "rebatebus.log");
 
 			    if ($rebateqty > 0)
 				$rebateAmount = $rebate->getAmount() * $rebateqty;
@@ -62,7 +58,7 @@ class Bus_Rebate_Model_Order_Pdf_Total_Rebates extends Mage_Sales_Model_Order_Pd
 
       $fontSize = $this->getFontSize() ? $this->getFontSize() : 7;
       $totals = array(array(
-		"label" => 'Energy Efficiency Rebates from: ' . $program,
+		"label" => $invoiceitemname,
 		'amount' => "- $" . number_format($totalRebateAmount, 2),
 		'font_size' => $fontSize
       ));

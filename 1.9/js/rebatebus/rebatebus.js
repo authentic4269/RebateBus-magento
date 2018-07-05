@@ -9,10 +9,7 @@
  * 
  * Markup is customized based on whether we're on a single product page or catalog page (updateRebatePriceQuotes), or checkout page (updateRebateApplySection)
  *
- * Note that stealing this API key and UID won't do you much good - they're tied to the products in the inventory managed by user 43
- * Feel free to use this API key and UID with these products to develop and debug your own apps. 
- *
- * Mitch Vogel, 8/10/2017
+ * Mitch Vogel, 7/4/2018
  */
 
 var test = 0;
@@ -23,22 +20,11 @@ var initial_price;
 var applyProducts;
 var first = 1;
 
-if (!test) {
-	UID = 444;
-	PUB_API_KEY = "YEuF3x8uMkkiCwtJ";
-	initial_price = 15.99;
-	server = "https://www.rebatebus.com/"
-	products = [];
-	applyProducts = [];
-}
-else {
-	UID = 1;
-	PUB_API_KEY = "1lY9PpbVN21cunLR";
-	initial_price = 15.99;
-	server = "http://maxlite.rebatebus.com:3001/"
-	products = [];
-	applyProducts = [];
-}
+UID = YOUR_UID;
+PUB_API_KEY = "YOUR_API_KEY";
+server = "http://maxlite.rebatebus.com:3001/"
+products = [];
+applyProducts = [];
 
 /*
  * We've found a rebate that applies to productid in the program we're localizing to - update the DOM to reflect the discount

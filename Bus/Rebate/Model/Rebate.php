@@ -14,19 +14,8 @@ class Rebate extends \Magento\Framework\Model\AbstractModel implements \Magento\
         $this->_init('Bus\Rebate\Model\ResourceModel\Rebate');
     }
 
-    public function sayHi() {
-      echo "HELLO";
-    }
-
     public function getIdentities()
     {
         return [self::CACHE_TAG . '_' . $this->getId()];
-    }
-
-    public function getDefaultValues()
-    {
-        $values = [];
-
-        return $values;
     }
 }

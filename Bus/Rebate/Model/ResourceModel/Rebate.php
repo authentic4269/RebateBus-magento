@@ -34,7 +34,7 @@ class Rebate extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
     protected function _construct()
     {
-        $this->_init('bus_rebate_rebate', 'id');
+        $this->_init('quote_item_rebate', 'id');
     }
 
     /**
@@ -43,7 +43,7 @@ class Rebate extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param string $id
      * @return Rebate
      */
-    public function getRebateById($id)
+    public function getRebateByItemId($id)
     {
         $adapter = $this->getConnection();
         $select = $adapter->select()

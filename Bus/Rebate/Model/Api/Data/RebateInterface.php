@@ -2,13 +2,15 @@
 namespace Bus\Rebate\Model\Api\Data;
 interface RebateInterface
 {
-/*	public function getMaxqty();
+	public function getMaxqty();
 	public function getProgram();
 	public function getVerification();
 	public function getItemId();
 	public function getAmount();
 	public function getBusid();
 	public function getCap();
+	public function getInvoiceItemName();
+	public function getMinContribution();
 
 	public function setMaxqty();
 	public function setProgram();
@@ -17,6 +19,9 @@ interface RebateInterface
 	public function setAmount();
 	public function setBusid();
 	public function setCap();
-*/	
+	public function setInvoiceItemName();
+	public function setMinContribution();
+
+
 	
 }

@@ -20,7 +20,7 @@
  *
  * @category    design
  * @package     rwd_default
- * @copyright   Copyright (c) 2006-2016 X.commerce, Inc. and affiliates (http://www.magento.com)
+ * @copyright   Copyright (c) 2006-2017 X.commerce, Inc. and affiliates (http://www.magento.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -57,11 +57,11 @@
                 <div class="product-name">
                     <span class="h1"><?php echo $_helper->productAttribute($_product, $_product->getName(), 'name') ?></span>
                 </div>
+
                 <div class="price-info">
                     <?php echo $this->getPriceHtml($_product); ?>
                     <?php echo $this->getChildHtml('bundle_prices') ?>
                     <?php echo $this->getTierPriceHtml() ?>
-			<span hidden class="ref">
                 </div>
 
                 <div class="extra-info">
@@ -77,7 +77,8 @@
                     </div>
                 <?php endif;?>
 
-
+		<div class="rebate-target" id="<?php echo $_product->getSku()?>-rebate-target"></div>
+		
 
 
                 <?php echo $this->getChildHtml('other');?>
@@ -111,6 +112,8 @@
                     </div>
                 <?php endif; ?>
             </div>
+
+            <?php echo $this->getChildHtml('related_products') ?>
 
             <div class="clearer"></div>
             <?php if ($_product->isSaleable() && $this->hasOptions()):?>

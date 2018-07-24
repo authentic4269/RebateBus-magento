@@ -6,6 +6,13 @@
         </Bus_Rebate>
     </modules>
     <frontend>
+        <layout>
+            <updates>
+                <module>
+                    <file>rebatebus/rebatebus_layout.xml</file>
+                </module>
+            </updates>
+        </layout>
 	<routers>
 		<checkout>
 			<args>
@@ -22,7 +29,7 @@
 			<rewrite>
 				<order_totals>Bus_Rebate_Block_Sales_Order_Totals</order_totals>	
 				<order_invoice_totals>Bus_Rebate_Block_Sales_Order_Invoice_Totals</order_invoice_totals>
-<!--				<order_creditmemo_totals>Bus_Rebate_Block_Sales_Order_Creditmemo_Totals</order_creditmemo_totals>-->
+				<order_creditmemo_totals>Bus_Rebate_Block_Sales_Order_Creditmemo_Totals</order_creditmemo_totals>
 			</rewrite>
 		</sales>
 		<adminhtml>
@@ -39,9 +46,18 @@
             </rebatebus>
 	</blocks>
 	<models>
+		<sales>
+			<rewrite>
+				<order_invoice>Bus_Rebate_Model_Order_Invoice</order_invoice>
+			</rewrite>
+	
+		</sales>
 		<rebate>
 				<class>Bus_Rebate_Model</class>
 				<resourceModel>rebate_resource</resourceModel>
+				<rewrite>
+					<order_invoice>Bus_Rebate_Model_Order_Invoice</order_invoice>
+				</rewrite>
 		</rebate>
 		<rebate_resource>
 			<class>Bus_Rebate_Model_Resource</class>	
@@ -87,5 +103,40 @@
 		 </order_creditmemo>
 
 	</sales>
+        <pdf>
+            <totals>
+                <rebates>
+                   <title>Rebate Total</title>
+                   <source_field>rowtotal</source_field>
+                   <model>rebate/order_pdf_total_rebates</model>
+                   <amount_prefix>-</amount_prefix>
+                   <font_size>7</font_size>
+                   <display_zero>1</display_zero>
+                </rebates>
+            </totals>
+        </pdf>
+	<events>
+		<catalog_product_new_action>
+			<observers>
+				<bus_rebate_model_observer>
+					<type>singleton</type>
+					<class>Bus_Rebate_Model_Observer</class>
+					<method>saveProduct</method>
+				</bus_rebate_model_observer>
+			</observers>
+		</catalog_product_new_action>
+<!--
+		<sales_order_invoice_save_after>
+			<observers>
+				<bus_rebate_model_observer>
+					<type>singleton</type>
+					<class>Bus_Rebate_Model_Observer</class>
+					<method>sendInvoiceEmail</method>
+				</bus_rebate_model_observer>
+			</observers>
+		</sales_order_invoice_save_after>
+-->
+	</events>
+ 
     </global>
 </config>

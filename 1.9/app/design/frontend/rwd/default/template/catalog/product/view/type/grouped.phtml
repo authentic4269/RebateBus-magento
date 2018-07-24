@@ -20,7 +20,7 @@
  *
  * @category    design
  * @package     rwd_default
- * @copyright   Copyright (c) 2006-2016 X.commerce, Inc. and affiliates (http://www.magento.com)
+ * @copyright   Copyright (c) 2006-2017 X.commerce, Inc. and affiliates (http://www.magento.com)
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -63,6 +63,7 @@
                             <label for="super_group_<?php echo $_item->getId() ?>" class="qty-label">
                                 <?php echo $this->__('Quantity'); ?>
                             </label>
+			    <div class="rebate-target" id="<?php echo $_item->getSku() ?>-rebate-target"></div>
                         <?php else: ?>
                             <p class="availability out-of-stock"><span><?php echo $this->__('Out of stock') ?></span></p>
                         <?php endif; ?>

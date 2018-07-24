@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<config>
-    <modules>
-        <Gravitywell_Example>
-            <active>true</active>
-            <codePool>local</codePool>
-        </Gravitywell_Example>
-    </modules>
-</config>

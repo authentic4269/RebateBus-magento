@@ -9,25 +9,27 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
     {
 	if ($this->getRequest()->getParam("remove")) {
 		$quote = Mage::getSingleton('checkout/session')->getQuote();
-		$cartItems = $quote->getAllVisibleItems();
+		$cartItems = $quote->getAllItems();
 		foreach ($cartItems as $item) {
-		 	$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
-			Mage::log("id " . $item->getId(), null, "rebatebus.log");
-			if ($rebate) {
-				Mage::log("found rebate", null, "rebatebus.log");
-				$this->_getSession()->addSuccess(
-					'Incentive Removed'
-				);
-				$rebate->delete();
+			if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
+				$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
+				if ($rebate) {
+					$this->_getSession()->addSuccess(
+						'Incentive Removed'
+					);
+					$rebate->delete();
+				}
 			}
 		}
 	        $this->_goBack();
 
 	} else {
-		$productId = (int) $this->getRequest()->getParam('product');
+		$productId = (string) $this->getRequest()->getParam('product');
 		$verification = (string) $this->getRequest()->getParam('verification');
 		$maxqty = (int) $this->getRequest()->getParam('maxqty');
 		$amount = (float) $this->getRequest()->getParam('amount');
+		$mincontribution = (float) $this->getRequest()->getParam('mincustomercontribution');
+		$invoiceitemname = (string) $this->getRequest()->getParam('invoiceitemname');
 		$program = (string) $this->getRequest()->getParam('program');
 		$busid = (string) $this->getRequest()->getParam('busid');
 		$cap = (float) $this->getRequest()->getParam('cap');
@@ -37,25 +39,33 @@ class Bus_Rebate_CartController extends Mage_Checkout_CartController
 		    return;
 		}
 		foreach (Mage::getModel('checkout/cart')->getQuote()->getAllItems() as $item) {
-			if ($item->getSku() == 	$productId) {
+			if (($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') && $item->getSku() == $productId) {
 				$model = Mage::getModel('rebate/rebate');
-				if ($cap) {
-					if ($item->getPrice() * ($cap / 100.0) < $amount)
+//				if ($item->getParentItemId() && $item->getParentItem()->getProduct()->getStockItem()->getProductTypeId() == 'configurable') {
+				if ($item->getParentItemId() && $item->getParentItem()->getProductType() == 'configurable') {
+					if ($amount > $item->getParentItem()->getPrice() * ($cap / 100.0))
+						$amount = $item->getParentItem()->getPrice() * ($cap / 100.0);
+					if ($mincontribution && ($item->getParentItem()->getPrice() - $amount) < $mincontribution)
+						$amount = $item->getParentItem()->getPrice() - $mincontribution;
+				} 
+				else {
+					if ($amount > $item->getPrice() * ($cap / 100.0))
 						$amount = $item->getPrice() * ($cap / 100.0);
+					if ($mincontribution && ($item->getPrice() - $amount) < $mincontribution)
+						$amount = $item->getParentItem()->getPrice() - $mincontribution;
 				}
 				$model->setAmount($amount);
 				$model->setVerification($verification);
 				$model->setMaxqty($maxqty);
 				$model->setProgram($program);
 				$model->setItemId($item->getId());	
+				$model->setInvoiceItemName($invoiceitemname);
 				$model->setBusid($busid);
 				$model->setCap($cap);
 				$model->save();
-				Mage::log('saved rebate with amount ' . $model->getAmount(), null, 'rebatebus.log');
 				$this->_getSession()->addSuccess(
 					'Rebate was applied'
 				);
-				$this->_goBack();
 			}
 		}
 		$this->_getSession()->addError('Rebate for product %s not found in cart', Mage::helper('core')->escapeHtml($productId));

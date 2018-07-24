@@ -8,8 +8,10 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
     public function saveOrderAction()
     {
 	// BEGIN Rebate Confirm Section
-		$apikey = "YOUR_APIKEY";
+		$apikey = "YOUR_API_KEY";
 	        $uid = YOUR_UID;
+//		$apikey = "ZpHmFYvSgiFnc1NQ";
+//		$uid = 1;
 	        $url = 'https://www.rebatebus.com/api/applymidstream';
 
                 $rebateitems = array();
@@ -18,14 +20,23 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
         	$result = array();
 		$amount = 0.0;
 		$busid = "";
-		Mage::log("doing save order", null, "rebatebus.log");
+		$price = 0;
                 foreach (Mage::getSingleton('checkout/session')->getQuote()->getAllItems() as $item) {
 			$rebate= Mage::getModel('rebate/rebate')->load($item->getId(), 'item_id');
-			if ($rebate->getId()) {
-//				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => ($item->getPrice() - $rebate->getAmount()));
-				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => $item->getPrice());
-				$amount = $amount + $rebate->getAmount() * min($item->getQty(), $rebate->getMaxqty());
-				$busid = $rebate->getBusid();
+			if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
+				if ($rebate->getId()) {
+	//				$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => ($item->getPrice() - $rebate->getAmount()));
+					if ($item->getParentProductId() && $item->getParentItem()->getProduct()->getStockItem()->getProductTypeId() == 'configurable') {	
+						$amount = $rebate->getAmount() * min($item->getQty(), $rebate->getMaxqty());
+						$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => $item->getParentItem()->getPrice(), 'rebateamount' => $amount);
+					
+					}
+					else {
+						$amount = $rebate->getAmount() * min($item->getQty(), $rebate->getMaxqty());
+						$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxqty()), 'price' => $item->getPrice(), 'rebateamount' => $amount);
+					}
+					$busid = $rebate->getBusid();
+				}
 			}
                 }
 		if (count($rebateitems)) {
@@ -38,7 +49,6 @@ class Bus_Rebate_OnepageController extends Mage_Checkout_OnepageController
 				'content' => http_build_query($postdata)
 			    )
 			);
-			Mage::log("sending approval request", null, "rebatebus.log");
 			/*	
 			$json = json_encode($postdata);
 			curl_setopt($url, CURLOPT_CUSTOMREQUEST, "POST");

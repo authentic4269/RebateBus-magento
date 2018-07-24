@@ -1,7 +1,9 @@
 # RebateBus-magento
 Magento extension for working with the Rebate Bus API
 
-Magento Bus Module Installation Instructions
+-----------------------------------------------------
+
+Magento 1 Bus Module Installation Instructions
 
 First Step: SQL Setup
 
@@ -69,9 +71,47 @@ http://magento.rebatebus.com/magento_one/js/rebatebus/midstream.js
 
 
 
-Third Step: Adding your Keys
+Fourth Step: Adding your Keys
 
     - Generate a public and private API key using Rebate Bus. I'd suggest you put your account in test mode on that same account settings page in order to test this module.
 
     - Add your private API key and UID to the file app/code/local/Bus/Rebate/controllers/OnepageController.php. Add the public key and UID to the file js/rebatebus/rebatebus.js as well.
+
+
+-----------------------------------------------------
+
+Magento 2 Bus Module Installation Instructions
+
+First Step: Install the Module
+
+Second Step: Modify Product Templates to Load IDs
+
+     - In this step, we need to ensure that the product ids are being loaded on the frontend wherever incentive offers should appear.
+
+     - Out of the box for this Magento 2 version, the ids were already loading everywhere except in the cart. I modified the following file - vendor/magento/module-checkout/view/frontend/templates/cart/item/default.phtml - to include the 'data-product-id' property. Adding this property allows the application script (the one that calls doRebateApp from rebatebus.js) to pass in the product IDs in the cart.
+
+Third Step: Adding the client scripts
+
+     - Add the Javascript files. These will need some attention from a developer to handle things with your client layout. They go in the pub/js directory. Example starter implementations can be found here: 
+
+http://magento2.rebatebus.com/magento2_clean/pub/js/rebatebus.js
+http://magento2.rebatebus.com/magento2_clean/pub/js/midstream.js
+
+    - References to these files must be in global configuration. Go to your Admin Panel, then Content -> Configuration, then edit the configuration of the store. In the HTML Head section, add the following references:
+
+
+     - Essentially what needs to happen in these files is this: the update and clear functions need to be filled out for each place you want rebate quotes to appear. The update function should add the post-rebate price and utility logos wherever it finds eligible product ids. Change to zip code 82001 using the widget at the upper right hand side of magento.rebatebus.com with Commercial property type set. You'll then see some offers from our Test Program pop in to the page. Use the debugger tools on your browser to play around with rebatebus.js to help inform your own implementation of a client JS file.
+
+    - Before testing the client, you'll need to get at least one product id added to your Rebate Bus.The product id must match up with what you've got client side - for example, the attached Javascript looks for the 'id' property of the 'item' CSS class.
+
+
+
+
+Fourth Step: Adding your Keys
+
+    - Generate a public and private API key using Rebate Bus. I'd suggest you put your account in test mode on that same account settings page in order to test this module.
+
+    - Add your private API key and UID to the file app/code/local/Bus/Rebate/controllers/OnepageController.php. Add the public key and UID to the file js/rebatebus/rebatebus.js as well.
+
+
 

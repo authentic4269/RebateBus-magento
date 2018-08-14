@@ -3,7 +3,7 @@ Magento extension for working with the Rebate Bus API
 
 -----------------------------------------------------
 
-Magento 1 Bus Module Installation Instructions
+<strong>Magento 1 Bus Module Installation Instructions</strong>
 
 First Step: SQL Setup
 
@@ -102,7 +102,16 @@ Fourth Step: Adding your Keys
 
 -----------------------------------------------------
 
-Magento 2 Bus Module Installation Instructions
+
+
+
+
+
+
+
+
+
+<strong>Magento 2 Bus Module Installation Instructions</strong>
 
 First Step: Install the Module
 

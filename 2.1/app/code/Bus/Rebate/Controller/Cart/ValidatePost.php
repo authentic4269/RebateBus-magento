@@ -67,8 +67,6 @@ class ValidatePost extends \Magento\Checkout\Controller\Cart
      */
     public function execute()
     {
-//	$apikey = "8kbHIlLdRC6AK2lt";
-//	$uid = 444;
 	$apikey = $this->varFactory->create()->loadByCode('rebatebus-apikey')->getPlainValue();
 	$uid = $this->varFactory->create()->loadByCode('rebatebus-uid')->getPlainValue();
 	

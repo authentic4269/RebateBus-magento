@@ -12,7 +12,6 @@
  * Mitch Vogel, 7/4/2018
  */
 
-var test = 0;
 var UID;
 var PUB_API_KEY;
 var server;
@@ -20,22 +19,12 @@ var initial_price;
 var applyProducts;
 var first = 1;
 
-if (!test) {
-        UID = 444;
-        PUB_API_KEY = "YEuF3x8uMkkiCwtJ";
-        initial_price = 15.99;
-        server = "https://www.rebatebus.com/"
-        products = [];
-        applyProducts = [];
-}
-else {
-        UID = 1;
-        PUB_API_KEY = "1lY9PpbVN21cunLR";
-        initial_price = 15.99;
-        server = "http://maxlite.rebatebus.com:3001/"
-        products = [];
-        applyProducts = [];
-}
+UID = YOUR_UID;
+PUB_API_KEY = "YOUR_PUB_API_KEY";
+initial_price = 15.99;
+server = "https://www.rebatebus.com/"
+products = [];
+applyProducts = [];
 
 function calculateFinalPrice(base, incentive) {
 	var capped = parseFloat(incentive.rebateAmount);

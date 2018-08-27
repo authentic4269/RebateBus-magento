@@ -15,16 +15,11 @@
 var UID;
 var PUB_API_KEY;
 var server;
-var initial_price;
-var applyProducts;
-var first = 1;
+var products = [];
 
 UID = YOUR_UID;
 PUB_API_KEY = "YOUR_PUB_API_KEY";
-initial_price = 15.99;
 server = "https://www.rebatebus.com/"
-products = [];
-applyProducts = [];
 
 function calculateFinalPrice(base, incentive) {
 	var capped = parseFloat(incentive.rebateAmount);
@@ -33,7 +28,7 @@ function calculateFinalPrice(base, incentive) {
             if (maxAmount < incentive.rebateAmount)
                 capped = maxAmount.toFixed(2);
         } if (incentive.mincustomercontribution && incentive.mincustomercontribution > capped) {
-            capped = amount - incentive.mincustomercontribution;
+            capped = base - incentive.mincustomercontribution;
         }	
 	return capped.toFixed(2);
 }
@@ -51,6 +46,7 @@ function updateRebatePriceQuotes(productid, incentive) {
 	var finalPrice;
 	var price = jQuery("#product-price-" + target.attr("data-product-id"));
 	var itemname = "Rebate";
+	var attempts, maxAttempts = 40;
 	if (incentive.useincentivename) {
 		itemname = "Incentive";
 	}
@@ -74,12 +70,16 @@ function updateRebatePriceQuotes(productid, incentive) {
 	imgdiv.append(programimg);
 	target.append(imgdiv);
 	target.append(desc);
-	setTimeout(function() {
-		if (price.length) {
-			finalPrice = calculateFinalPrice(price.attr("data-price-amount"), incentive);
-			price.html("<span class='price'><del>$" + parseFloat(price.attr("data-price-amount")).toFixed(2) + "</del>&nbsp;</span><span class='price'>$" + finalPrice + "</span>");
+	if (price.length) {
+		for (attempts = 0; attempts < maxAttempts; attempts++) {
+			setTimeout(function() {
+				if (!jQuery("#rebate-price-after").length) {
+					finalPrice = calculateFinalPrice(price.attr("data-price-amount"), incentive);
+					price.html("<span id='rebate-price-after' class='price'><del>$" + parseFloat(price.attr("data-price-amount")).toFixed(2) + "</del>&nbsp;</span><span class='price'>$" + finalPrice + "</span>");
+				}
+			}, 1000 * (attempts + 1));
 		}
-	}, 1000);
+	}
 }
 
 function clearRebatePriceQuotes() {

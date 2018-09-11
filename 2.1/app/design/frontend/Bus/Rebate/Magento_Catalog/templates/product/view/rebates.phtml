@@ -3,6 +3,18 @@
  * Copyright © RebateBus, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+	$isConfigProduct = false;
+	$children = array();
+	if ($block->getProduct()->getTypeId() === "configurable") {
+		$isConfigProduct = true;
+		$children = $block->getProduct()->getTypeInstance()->getUsedProducts($block->getProduct());
+		echo '<ul style="display: none" id="product-configurable-simples">';
+		foreach ($children as $simple) {
+                        echo '<li class="config-product-associated"  id="configproduct' . $simple->getSku() . '">' . $simple->getName() . '</li>';
+		}
+		echo '</ul>';
+	}
+	else
+		echo '<div style="display: table-row" class="rebate-target" id="' . $block->getProduct()->getSku() . " data-product-id=" . $block->getProduct()->getId() . "></div>";
 
 ?>
-<div style="display: table-row" class="rebate-target" id="<?= $block->getProduct()->getSku() ?>" data-product-id="<?= $block->getProduct()->getId() ?>"></div>

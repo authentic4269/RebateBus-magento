@@ -19,7 +19,7 @@ public function __construct(
     $this->session = $session;
     $this->rebateFactory = $rebateFactory;
     $this->logger = $context->getLogger();
-    $this->items = $session->getQuote()->getAllVisibleItems();
+    $this->items = $session->getQuote()->getAllItems();
     parent::__construct($context);
 }
 
@@ -34,12 +34,34 @@ public function getCartItems() {
 
 public function getRebateTexts() {
 	$text = "<table style='border-bottom: 1px solid lightgray; margin-bottom: 1em;'>";
-	$this->logger->info("In getRebateTexts"); 
 	foreach ($this->items as $item) {
-		$rebate = $this->rebateFactory->create()->load($item->getId(), 'item_id'); 
-		if ($rebate->getAmount()) {
-			$amount = min($rebate->getMaxQty(), $item->getQty()) * $rebate->getAmount();
-			$text = $text . "<tr style='padding: 1em 0 1em 0'><td><strong>" . $item->getName() . ":</strong></td><td class='price a-right' style='padding-left: 2em;'>$" . number_format($amount, 2) . " Incentive</td></tr>";
+		if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
+			$rebate = $this->rebateFactory->create()->load($item->getId(), 'item_id'); 
+			$amount = 0;
+			$qty = 0;
+			$price = 0;
+			$qtystr = "";
+			if ($rebate->getAmount()) {
+					
+				$qty = $item->getQty();
+				if ($item->getParentItemId() && $item->getParentItem()->getProductType() == 'configurable') {
+					$price = $item->getParentItem()->getPrice();
+					$qty = $item->getParentItem()->getQty();
+				} else {
+					$price = $item->getPrice();
+				}
+
+				if ($qty >= $rebate->getMaxQty()) {
+					$qtystr = "Limit of " . $rebate->getMaxQty() . " Items with Incentive per Customer Applied.";
+				}
+				if (($price * ($rebate->getCap() / 100.0)) < $rebate->getAmount()) {
+					$this->logger->info("applying price cap " . $qty . ", " . $price);
+					$amount = ($rebate->getCap() / 100.0) * $price;	
+				} else {
+					$amount = $rebate->getAmount();	
+				}
+				$text = $text . "<tr style='padding: 1em 0 1em 0'><td><strong>" . $item->getName() . ":</strong></td><td class='price a-right' style='padding-left: 2em;'>$" . number_format($rebate->getAmount(), 2) . " up to " . $rebate->getCap() . "% of Final Product Price " . $rebate->getInvoiceItemName() . ". " . $qtystr  . "</td></tr>";
+			}
 		}
 	}
 	$text = $text . "</table>";

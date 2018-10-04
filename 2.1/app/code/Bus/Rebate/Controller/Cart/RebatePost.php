@@ -78,13 +78,23 @@ class RebatePost extends \Magento\Checkout\Controller\Cart
 					    );
 					$rebate->delete();
 				}
+					
+				if ($item->getParentItemId() && $item->getParentItem()->getProductType() == 'configurable') {
+					$parentitem = $item->getParentItem();
+					$parentitem->setDiscountAmount(0);
+					$parentitem->setBaseDiscountAmount(0);
+					$parentitem->setRebate(0);
+				}
+				$item->setRebate(0);
+				$item->setDiscountAmount(0);
+				$item->setBaseDiscountAmount(0);
 			}
 		}
 		$this->_checkoutSession->getQuote()->collectTotals()->save();
 	        return $this->_goBack();
 
 	} else {
-		$productId = (string) $this->getRequest()->getParam('product');
+		$productId = strtolower((string) $this->getRequest()->getParam('product'));
 		$verification = (string) $this->getRequest()->getParam('verification');
 		$maxqty = (int) $this->getRequest()->getParam('maxqty');
 		$amount = (float) $this->getRequest()->getParam('amount');
@@ -99,18 +109,15 @@ class RebatePost extends \Magento\Checkout\Controller\Cart
 	            return $this->_goBack();
 		}
 		foreach ($quote->getAllItems() as $item) {
-			$this->logger->info("In product loop"); 
-			if (($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') && $item->getSku() == $productId) {
+			$this->logger->info("rebatepost, looking for ID " . $productId . " checking for rebate " . $item->getSku() . ", " . $item->getProductType());
+			if (($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') && strtolower($item->getSku()) == $productId) {
 				$model = $this->rebateFactory->create();
 				if ($item->getParentItemId() && $item->getParentItem()->getProductType() == 'configurable') {
-					if ($amount > $item->getParentItem()->getPrice() * ($cap / 100.0))
-						$amount = $item->getParentItem()->getPrice() * ($cap / 100.0);
 					if ($mincontribution && ($item->getParentItem()->getPrice() - $amount) < $mincontribution)
 						$amount = $item->getParentItem()->getPrice() - $mincontribution;
+					$item->getParentItem()->setRebate(0);
 				} 
 				else {
-					if ($amount > $item->getPrice() * ($cap / 100.0))
-						$amount = $item->getPrice() * ($cap / 100.0);
 					if ($mincontribution && ($item->getPrice() - $amount) < $mincontribution)
 						$amount = $item->getParentItem()->getPrice() - $mincontribution;
 				}
@@ -136,16 +143,13 @@ class RebatePost extends \Magento\Checkout\Controller\Cart
         			return $this->_goBack();
 			}
 		}
-		$this->_getSession()->addError('Rebate for product %s not found in cart', Mage::helper('core')->escapeHtml($productId));
 		    $this->messageManager->addError(
 			__(
 			    'Rebate for product %1 not found in cart.',
-			    $escaper->escapeHtml($productId)
+			    $productId
 			)
 		    );
         	return $this->_goBack();
- 
-
 	}
     }
 }

@@ -84,7 +84,7 @@ class ValidatePost extends \Magento\Checkout\Controller\Cart
 		if ($rebate->getAmount()) {
 			if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 				if ($rebate->getAmount()) {
-					if ($item->getParentProductId() && $item->getParentItem()->getProductType() == 'configurable') {	
+					if ($item->getParentProductId() && $item->getParentItem()->getProduct()->getStockItem()->getProductTypeId() == 'configurable') {	
 						$amount = $rebate->getAmount() * min($item->getQty(), $rebate->getMaxQty());
 						$rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxQty()), 'price' => $item->getParentItem()->getPrice(), 'rebateamount' => $amount);
 					
@@ -112,14 +112,7 @@ class ValidatePost extends \Magento\Checkout\Controller\Cart
 		if (strlen($billdata->getLastname())) {	$lastname = $billdata->getLastname(); }
 		if (strlen($billdata->getRegion())) { $region = $billdata->getTelephone(); }
 		if (strlen($billdata->getCity())) { $city = $billdata->getTelephone(); }
-        if (strlen($this->cart->getCustomerSession()->getCustomer()->getEmail())) {
-            //logged in customer
-            $custEmail = $this->cart->getCustomerSession()->getCustomer()->getEmail();
-        } else {
-            //guest
-            $custEmail = $this->getRequest()->getParam("email");
-        }
-		$postdata = array('zip' => $shipdata->getPostcode(),'billzip' => $billzip, 'address' => $shipdata->getStreet()[0] . "," . $shipdata->getCity() . "," . $shipdata->getRegion(),'billaddress' => $billaddress . "," . $billcity . ',' . $billregion, 'contactname' => $billfirstname . " " . $billlastname, 'contactphone' => $billtelephone, 'contactemail' => $custEmail, 'uid' => $uid, 'apikey' => $apikey, 'rebates' => $rebateitems, 'busid' => $busid, 'nosave' => true);
+		$postdata = array('zip' => $shipdata->getPostcode(),'billzip' => $billzip, 'address' => $shipdata->getStreet()[0] . "," . $shipdata->getCity() . "," . $shipdata->getRegion(),'billaddress' => $billaddress . "," . $billcity . ',' . $billregion, 'contactname' => $billfirstname . " " . $billlastname, 'contactphone' => $billtelephone, 'contactemail' => $this->getRequest()->getParam("email"), 'uid' => $uid, 'apikey' => $apikey, 'rebates' => $rebateitems, 'busid' => $busid, 'nosave' => true);
 		$options = array(
 		    'http' => array(
 			'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
@@ -136,12 +129,12 @@ class ValidatePost extends \Magento\Checkout\Controller\Cart
 			if ($jsondata["error"]) {
 			    $result['success'] = false;
 			    $result['error'] = true;
-			    $result['error_message'] = 'Error processing your utility incentive: ' . $jsondata["error"];
+			    $result['error_message'] = __METHOD__ . ' (' . $this->getRequest()->getParam("email") . ') 1 Error processing your utility incentive: ' . $jsondata["error"];
 			} 
 			else if (strpos($http_response_header[0], "200") == false) {
 			    $result['success'] = false;
 			    $result['error'] = true;
-			    $result['error_message'] = 'Error processing your utility incentive: ' . $http_response_header[0];
+			    $result['error_message'] = __METHOD__ . '2 Error processing your utility incentive: ' . $http_response_header[0];
 			}
 			else {
 			    $result['success'] = true;
@@ -149,7 +142,7 @@ class ValidatePost extends \Magento\Checkout\Controller\Cart
 		} catch (Exception $e) {
 			    $result['success'] = false;
 			    $result['error'] = true;
-			    $result['error_messages'] = 'Error processing your utility incentive: ' . $e->getMessage();
+			    $result['error_messages'] = __METHOD__ . '3 Error processing your utility incentive: ' . $e->getMessage();
 		}
       }
       else {

@@ -41,6 +41,7 @@ class Rebate extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 		$label = '';
 		$totalRebateAmount = 0;
 		$result = null;
+		$priorDiscount = $total->getDiscountAmount();
 		foreach ($quote->getAllItems() as $item) {
 			if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
 				$rebate = $this->rebateFactory->create()->load($item->getId(), 'item_id'); //getRebateByItemId($item->getId());
@@ -49,18 +50,24 @@ class Rebate extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 				    $qty = 0;
 				    $price = 0;
 				    $label = $rebate->getInvoiceItemName();			
-				    if ($item->getParentItemId() && $item->getParentItem()->getProduct()->getStockItem()->getProductTypeId() == 'configurable') {
-					$qty = $item->getParentItem()->getQty();
-					$price = $item->getParentItem()->getPrice();
+				    $itemPriorDiscount = 0;
+				    $parentitem = null;
+				    if ($item->getParentItemId() && $item->getParentItem()->getProductType() == 'configurable') {
+					$parentitem = $item->getParentItem();
+					$qty = $parentitem->getQty();
+					$price = $parentitem->getPrice() - $parentitem->getDiscountAmount() / $qty;
+					$itemPriorDiscount = $parentitem->getDiscountAmount();
 				    } else {
 					$qty = $item->getQty();
-					$price = $item->getPrice();
+					$price = $item->getPrice() - $item->getDiscountAmount() / $qty;
+					$itemPriorDiscount = $item->getDiscountAmount();
 				    }
+				    $this->logger->info("in quote rebates, item prior discount " . $itemPriorDiscount);
 				    if ($rebate->getMaxQty() < $qty) {
 					$qty = $rebate->getMaxQty();
 				    }
 				    if (($price * ($rebate->getCap() / 100.0)) < $rebate->getAmount()) {
-					$rebateAmount = ($rebate->getCap() / 100.0) * $qty;	
+					$rebateAmount = ($rebate->getCap() / 100.0) * $qty * $price;	
 				    }
 				    else {
 					$rebateAmount = $rebate->getAmount() * $qty;	
@@ -69,37 +76,42 @@ class Rebate extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 					$rebateAmount = $qty * $rebate->getMinContribution();
 				    }
 				    $totalRebateAmount += $rebateAmount;
+				    $item->setDiscountAmount($rebateAmount + $itemPriorDiscount);
+				    $item->setBaseDiscountAmount($rebateAmount + $itemPriorDiscount);
+				    if ($parentitem != null) {
+					    $parentitem->setDiscountAmount($rebateAmount + $itemPriorDiscount);
+					    $parentitem->setBaseDiscountAmount($rebateAmount + $itemPriorDiscount);
+				    	    $parentitem->setRebate($rebateAmount);
+				    }
+				    $this->logger->info("in quote rebates, setting total item discount " . ($rebateAmount + $itemPriorDiscount));
+	
+				    $item->setRebate($rebateAmount);
 				}
 			}
 		}
-		 
-		 $discountAmount ="-".$totalRebateAmount; 
-		 $appliedCartDiscount = 0;
-		 
-		if($total->getDiscountDescription())
-		 {
-			 $appliedCartDiscount = $total->getDiscountAmount();
-			 $discountAmount = $total->getDiscountAmount()+$discountAmount;
-			 $label = $total->getDiscountDescription().', '.$label;
-		 } 
-		 
-		 $total->setDiscountDescription($label);
-		 $total->setDiscountAmount($discountAmount);
-		 $total->setBaseDiscountAmount($discountAmount);
-		 $total->setSubtotalWithDiscount($total->getSubtotal() + $discountAmount);
-		 $total->setBaseSubtotalWithDiscount($total->getBaseSubtotal() + $discountAmount);
-		 
-		 if(isset($appliedCartDiscount))
-		 {
-			 $total->addTotalAmount($this->getCode(), $discountAmount - $appliedCartDiscount);
-			 $total->addBaseTotalAmount($this->getCode(), $discountAmount - $appliedCartDiscount);
-		 } 
-		 else 
-		 {
-			 $total->addTotalAmount($this->getCode(), $discountAmount);
-			 $total->addBaseTotalAmount($this->getCode(), $discountAmount);
-		 }
-		 return $this;
+		if ($totalRebateAmount != 0) {	 
+			 $discountAmount ="-".$totalRebateAmount; 
+			 $discountAmount = $discountAmount + $priorDiscount;
+			 $appliedCartDiscount = 0;
+			 
+			 //$quote->setCouponCode($label);
+			 //$total->setCouponCode($label);
+			 if ($priorDiscount) {
+				 $total->setDiscountDescription($label . ", Promo Code: " . $total->getDiscountDescription());
+				 $quote->setDiscountDescription($label . ", Promo Code: " . $total->getDiscountDescription());
+			 } else {
+				 $total->setDiscountDescription($label);
+				 $quote->setDiscountDescription($label);
+			 }
+			 $total->setDiscountAmount($discountAmount);
+			 $total->setBaseDiscountAmount($discountAmount);
+			 //$total->setSubtotalWithDiscount($total->getSubtotal() + $discountAmount);
+			 //$total->setBaseSubtotalWithDiscount($total->getBaseSubtotal() + $discountAmount);
+			 
+			 $total->addTotalAmount($this->getCode(), -$totalRebateAmount);
+			 $total->addBaseTotalAmount($this->getCode(), -$totalRebateAmount);
+			 return $this;
+		}
 	 }
 	 	 
 
@@ -116,7 +128,7 @@ class Rebate extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 				    $qty = 0;
 				    $price = 0;
 				    $label = $rebate->getInvoiceItemName();			
-				    if ($item->getParentItemId() && $item->getParentItem()->getProduct()->getStockItem()->getProductTypeId() == 'configurable') {
+				    if ($item->getParentItemId() && $item->getParentItem()->getProductType() == 'configurable') {
 					$qty = $item->getParentItem()->getQty();
 					$price = $item->getParentItem()->getPrice();
 				    } else {
@@ -141,11 +153,11 @@ class Rebate extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 		}
 		 if ($totalRebateAmount != 0)
 		 { 
-			$label = "";
+			$this->logger->info("in fetch quote rebates, total rebate " . $totalRebateAmount);
 			 $result = [
 			 'code' => 'busrebate',
 			 'title' => $label,
-			 'value' => $total->getDiscountAmount() 
+			 'value' => -$totalRebateAmount
 			 ];
 		 }
 

@@ -121,6 +121,10 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                 ['item_id'],
                 \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_FULLTEXT
             );
+
+	    $quoteTable = $installer->getTable('quote_item');
+	    $connection->addColumn($quoteTable, "rebate", ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT, 'nullable' => true, 'comment' => 'rebate']);
+
         }
         $installer->endSetup();
     }

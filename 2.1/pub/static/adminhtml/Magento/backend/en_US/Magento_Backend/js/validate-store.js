@@ -1,1 +1,0 @@
-/var/www/html/vendor/magento/module-backend/view/adminhtml/web/js/validate-store.js

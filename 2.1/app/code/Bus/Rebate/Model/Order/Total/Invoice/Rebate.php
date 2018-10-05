@@ -46,6 +46,7 @@ class Rebate extends \Magento\Sales\Model\Order\Invoice\Total\AbstractTotal
 			$gotrebate = 0;
 			if ($orderitem->getProductType() == 'simple' || $orderitem->getProductType() == 'grouped' || $orderitem->getProductType() == 'virtual') {
 				$rebate = $this->rebateFactory->create()->load($item->getId(), 'item_id'); //getRebateByItemId($item->getId());
+				$parent_order_item_id = $orderitem->getParentItemId();
 				if ($rebate->getAmount()) {
 				    $gotrebate = 1;
 				    $invoiceitemname = $rebate->getInvoiceItemName();
@@ -61,7 +62,6 @@ class Rebate extends \Magento\Sales\Model\Order\Invoice\Total\AbstractTotal
 					$price = $orderitem->getParentItem()->getPrice() * (1.0 - ($orderitem->getParentItem()->getDiscountPercent() / 100.0));
 					$orderqty = $orderitem->getParentItem()->getQtyOrdered();
 				    	$qty_already_invoiced = $orderitem->getParentItem()->getQtyInvoiced();
-					$parent_order_item_id = $orderitem->getParentItemId();
 					foreach ($invoice->getAllItems() as $possible_parent) {
 						if ($possible_parent->getOrderItemId() == $parent_order_item_id) {
 							$qty_to_invoice = $possible_parent->getQty();
@@ -80,7 +80,6 @@ class Rebate extends \Magento\Sales\Model\Order\Invoice\Total\AbstractTotal
 				    $rebate_fullqty = $orderqty;
 
 				    $remaining_no_rebates_qty = $orderqty - $rebate->getMaxQty() - $qty_already_invoiced;
-				    $this->logger->info("remaining no-rebates qty " . $remaining_no_rebates_qty);
 				    if ($remaining_no_rebates_qty > 0) {
 					$qty_to_rebate = max(0, $qty_to_invoice - $remaining_no_rebates_qty);
 				    } else { 
@@ -109,33 +108,23 @@ class Rebate extends \Magento\Sales\Model\Order\Invoice\Total\AbstractTotal
 					    $parentitem->setBaseDiscountAmount($curCouponDiscount + $rebateAmount);
 				    }
 				    $totalInvoiceDiscount += $curCouponDiscount + $rebateAmount;
-				    $this->logger->info("adding to totalinvoicediscount " . ($curCouponDiscount + $rebateAmount) . ", " . $invoiceitem->getSku());
-				} 
-			}
-			if (!$gotrebate) {
-				$child_has_rebate = 0; 
-				if ($orderitem->getProductType() == "configurable") {
-					foreach ($invoice->getAllItems() as $possible_child) {
-						if ($possible_child->getOrderItemId() == $orderitem->getItemId()) {
-							$quoteitem = $this->quoteItemFactory->create()->load($possible_child->getQuoteItemId(), 'item_id');
-							$rebate = $this->rebateFactory->create()->load($quoteitem->getId(), 'item_id'); 
-							if ($rebate->getAmount()) {
-								$child_has_rebate = true;
-							}
+				} else {
+				    if ($orderitem->getParentItemId() && $orderitem->getParentItem()->getProductType() == "configurable") {
+					foreach ($invoice->getAllItems() as $possible_parent) {
+						if ($possible_parent->getOrderItemId() == $parent_order_item_id) {
+							$totalInvoiceDiscount += $possible_parent->getDiscountAmount();
 							break;
-						}
+						} 
 					}
-				}
-				if (!$child_has_rebate) {	
+				    } else {
 					$totalInvoiceDiscount += $invoiceitem->getDiscountAmount();
+				    }
 				}
 			}
 		}
-		 if ($totalInvoiceDiscount) {
+		 if ($gotrebate && $totalInvoiceDiscount) {
 			 $invoice->setDiscountDescription( $invoice->getOrder()->getDiscountDescription());
 			 $invoice->setDiscountAmount($totalInvoiceDiscount);
-			//$invoice->setGrandTotal($invoice->getSubtotal() - $totalInvoiceDiscount);
-			//$invoice->setBaseGrandTotal($invoice->getBaseSubtotal() - $totalInvoiceDiscount);
 		 }
 		 return $this;
 	 }

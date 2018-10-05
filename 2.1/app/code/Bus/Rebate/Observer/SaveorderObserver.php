@@ -48,12 +48,14 @@ class SaveorderObserver implements ObserverInterface
             if ($rebate->getAmount()) {
                 if ($item->getProductType() == 'simple' || $item->getProductType() == 'grouped') {
                         if ($item->getParentProductId() && $item->getParentItem()->getProductType() == 'configurable') {	
-                            $amount = $rebate->getAmount() * min($item->getQty(), $rebate->getMaxQty());
-                            $rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxQty()), 'price' => $item->getParentItem()->getPrice(), 'rebateamount' => $amount);
+			    $price = min($rebate->getAmount(), $item->getParentItem()->getPrice() * ($rebate->getCap() / 100.0));
+                            $amount = $price * min($item->getQty(), $rebate->getMaxQty());
+                            $rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxQty()), 'price' => $price, 'rebateamount' => $amount);
       
                         } else {
-                            $amount = $rebate->getAmount() * min($item->getQty(), $rebate->getMaxQty());
-                            $rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxQty()), 'price' => $item->getPrice(), 'rebateamount' => $amount);
+			    $price = min($rebate->getAmount(), $item->getPrice() * ($rebate->getCap() / 100.0));
+                            $amount = $price * min($item->getQty(), $rebate->getMaxQty());
+                            $rebateitems[] = array('verification' => $rebate->getVerification(), 'quantity' => min($item->getQty(), $rebate->getMaxQty()), 'price' => $price, 'rebateamount' => $amount);
                         }
                         $busid = $rebate->getBusid();
                 }
@@ -117,7 +119,7 @@ class SaveorderObserver implements ObserverInterface
                 $result['error'] = true;
                 $result['error_messages'] = __METHOD__ . '6 Error processing your utility incentive: ' . $e->getMessage();
             }
-        } else {
+        }
 	    if (count($nonrebateitems)) {
 		$url = 'https://www.rebatebus.com/api/nonrebatesale';
 		foreach ($nonrebateitems as $sale) {
@@ -144,6 +146,5 @@ class SaveorderObserver implements ObserverInterface
 			}
 		}
 	    }
-        }
     }
 }

@@ -124,26 +124,18 @@ class Rebate extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTotal
 					$parent->setBaseDiscountAmount($curCouponDiscount + $rebateAmount);
 				    }
 				    //$memoitem->setRowTotalWithDiscount($qty * $price - $rebateAmount);
-				}
-			}
-			if (!$gotrebate) {
-				$child_has_rebate = 0; 
-				if ($orderitem->getProductType() == "configurable") {
-					foreach ($memo->getAllItems() as $possible_child) {
-						if ($possible_child->getOrderItemId() == $orderitem->getItemId()) {
-							$quoteitem = $this->quoteItemFactory->create()->load($possible_child->getQuoteItemId(), 'item_id');
-							$rebate = $this->rebateFactory->create()->load($quoteitem->getId(), 'item_id'); 
-							if ($rebate->getAmount()) {
-								$child_has_rebate = true;
-							}
+				} else {
+				    if ($orderitem->getParentItemId() && $orderitem->getParentItem()->getProductType() == "configurable") {
+					foreach ($memo->getAllItems() as $possible_parent) {
+						if ($possible_parent->getOrderItemId() == $parent_order_item_id) {
+							$totalMemoDiscount += $possible_parent->getDiscountAmount();
 							break;
-						}
+						} 
 					}
-				}
-				if (!$child_has_rebate) {	
+				    } else {
 					$totalMemoDiscount += $memoitem->getDiscountAmount();
+				    }
 				}
-
 			}
 		}
 		if ($hasRebate) { 

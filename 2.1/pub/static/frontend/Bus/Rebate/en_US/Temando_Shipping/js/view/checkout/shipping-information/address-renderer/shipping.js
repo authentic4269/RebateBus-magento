@@ -1,1 +1,0 @@
-/var/www/html/vendor/temando/module-shipping-m2/view/frontend/web/js/view/checkout/shipping-information/address-renderer/shipping.js

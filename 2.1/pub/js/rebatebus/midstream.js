@@ -32,7 +32,11 @@ function doRebateApp(products, UID, PUB_API_KEY) {
 			for (var i = 0; i < data.length; i++)
 			{
 				jQuery.post(postAction, data[i], function(response) {
-					location.reload();
+					if (--finished == 0) 
+						location.reload();
+				}).fail(function(r) {
+					if (--finished == 0) 
+						location.reload();
 				});
 			}
 		}
